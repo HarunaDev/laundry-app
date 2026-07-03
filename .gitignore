@@ -1,0 +1,32 @@
+# Node.js (React Native + Vite React Admin)
+node_modules/
+dist/
+build/
+
+# React Native specific
+.expo/
+.expo-shared/
+android/app/build/
+ios/build/
+
+# .NET backend
+bin/
+obj/
+*.dll
+*.exe
+*.log
+
+# Solution files
+*.user
+*.suo
+
+# Docker
+*.pid
+*.tar
+*.log
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
