@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:80"
+
+  mobile:
+    build: ./mobile
+    ports:
+      - "3000:3000"
+
+  admin:
+    build: ./admin
+    ports:
+      - "4000:3000"
