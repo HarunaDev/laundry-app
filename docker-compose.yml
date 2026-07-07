@@ -4,6 +4,8 @@ services:
     build: ./backend
     ports:
       - "8080:8080"
+    env_file:
+      - ./backend/LaundryApp/.env
 
   mobile:
     build: ./mobile
