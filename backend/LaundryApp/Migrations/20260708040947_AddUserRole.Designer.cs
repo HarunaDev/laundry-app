@@ -3,6 +3,7 @@ using System;
 using LaundryApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LaundryApp.Migrations
 {
     [DbContext(typeof(LaundryAppDbContext))]
-    partial class LaundryAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708040947_AddUserRole")]
+    partial class AddUserRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,10 +81,10 @@ namespace LaundryApp.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "a005670-0050-2000-0040-104020700001",
+                            Id = "cb6ff3ef-e8d8-4c8a-a752-fba5bb6fac64",
                             Email = "superadmin@laundryapp.com",
                             EmailVerified = false,
-                            PasswordHash = "123456",
+                            PasswordHash = "AQAAAAIAAYagAAAAELHHnrh+bShCtvKSF9pytINv0se8J/y4s003++Oy6DlVmlZul0vXnlrdthYmeK/VMQ==",
                             Role = 2,
                             UserName = "superadmin"
                         });
