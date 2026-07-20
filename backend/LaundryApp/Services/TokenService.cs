@@ -9,7 +9,7 @@ namespace LaundryApp.Services;
 public class TokenService
 {
     public string GenerateAccessToken(
-        string userId, string email, string userName)
+        string userId, string email, string userName, string role)
     {
         var claims = new List<Claim>
         {
@@ -22,7 +22,9 @@ public class TokenService
 
             // Optional but useful
             new(ClaimTypes.NameIdentifier, userId.ToString()),
-            new(ClaimTypes.Name, userName)
+            new(ClaimTypes.Name, userName),
+
+            new(ClaimTypes.Role, role)
         };
 
         var key = new SymmetricSecurityKey(
