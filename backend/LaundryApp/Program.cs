@@ -38,6 +38,7 @@ builder.Host.UseSerilog();
 
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddScoped<AdminService>();
 builder.Services.AddSingleton<PasswordService>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddScoped<AuthService>();
@@ -143,11 +144,11 @@ builder.Services.AddSwaggerGen(options =>
                 // Configure basic information for the OpenAPI documentation (optional)
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "StoreApp API",
+                    Title = "LaundryApp API",
                     Version = "v1",
                     Description = "ASP.NET Core Web API with JWT authentication. " +
                     "Target Framework is .NET 10. " +
-                    "Swashbuckle.AspNetCore 10.1.7 is used."
+                    "Swashbuckle.AspNetCore 6.9.0 is used."
                 });
 
                 // Add a Security Scheme (using a JWT Bearer token).
