@@ -12,6 +12,13 @@ public class User
     public required string PasswordHash { get; set; }
     public bool EmailVerified { get; set; }
     public UserRole Role { get; set; } = UserRole.Client;
+
+    public bool IsDeleted { get; set; } = false;
+
+    public DateTime? DeletedAt { get; set; }
+
+    public string? DeletedBy { get; set; }
+    
     public ICollection<RefreshToken>
         RefreshTokens
     { get; set; }

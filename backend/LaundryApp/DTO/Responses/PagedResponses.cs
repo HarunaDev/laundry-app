@@ -11,6 +11,9 @@ namespace LaundryApp.DTO.Responses
         public int PageSize { get; set; }
         public int TotalRecords { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
+
+        [JsonPropertyOrder(5)]
+        public IEnumerable<T> Items { get; set; } = Enumerable.Empty<T>();
     }
 
     // Product-specific wrapper

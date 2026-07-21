@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LaundryApp.DTO.Auth;
 using LaundryApp.DTO.Responses;
-using LaundryApp.DTO.User;
 using LaundryApp.Services;
 
 namespace LaundryApp.Controllers;
@@ -59,20 +57,6 @@ public class AuthController : ControllerBase
         {
             Success = true,
             Message = "Token refreshed successfully",
-            Data = result
-        });
-    }
-    
-    [ProducesResponseType(typeof(ApiResponse<UserResponseDto>), StatusCodes.Status200OK)]
-    [HttpPost("create-admin")]
-    [Authorize(Roles = "SuperAdmin")] // only SuperAdmin can call this
-    public async Task<IActionResult> CreateAdmin(RegisterDto dto)
-    {
-        var result = await _authService.CreateAdminAsync(dto, User);
-        return Ok(new ApiResponse<UserResponseDto>
-        {
-            Success = true,
-            Message = "Admin created successfully",
             Data = result
         });
     }
