@@ -131,22 +131,40 @@ public class UserService
         };
     }
 
-    // soft delete client (user can delete self, superadmin can delete any client)
+    // soft delete client (only current user can delete account)
+    public async Task DeleteCurrentUserAsync(ClaimsPrincipal currentUser)
+    {
+        var currentUserId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentUserId && u.Role == UserRole.Client && !u.IsDeleted);
+
+        if (user is null)
+        {
+            throw new NotFoundException("User not found.");
+        }
+
+        user.IsDeleted = true;
+        user.DeletedAt = DateTime.UtcNow;
+        user.DeletedBy = currentUserId;
+
+        await _context.SaveChangesAsync();
+    }
+
+    // soft delete client (superadmin can delete any client)
     public async Task DeleteUserAsync(
         string id,
         ClaimsPrincipal currentUser)
     {
-        var currentUserId =
-            currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+        // var currentUserId =
+        //     currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
 
         var currentRole =
             currentUser.FindFirstValue(ClaimTypes.Role);
 
-        if (currentUserId != id &&
-            currentRole != UserRole.SuperAdmin.ToString())
+        if (currentRole != UserRole.SuperAdmin.ToString())
         {
             throw new UnauthorizedException(
-                "You are not authorized to delete this user.");
+                "Only SuperAdmin can delete users.");
         }
 
         var user = await _context.Users.FirstOrDefaultAsync(u =>
@@ -161,7 +179,7 @@ public class UserService
 
         user.IsDeleted = true;
         user.DeletedAt = DateTime.UtcNow;
-        user.DeletedBy = currentUserId;
+        user.DeletedBy = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
 
         await _context.SaveChangesAsync();
     }

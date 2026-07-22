@@ -101,10 +101,24 @@ public class UserController : ControllerBase
 
     // SOFT DELETE USER
     // Client (self)
-    // SuperAdmin (any client)
+    [HttpDelete("me")]
+    [Authorize(Roles = "Client")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> DeleteMyAccount()
+    {
+        await _userService.DeleteCurrentUserAsync(User);
 
+        return Ok(new ApiResponse<object>
+        {
+            Success = true,
+            Message = "Account deleted successfully."
+        });
+    }
+
+    // SOFT DELETE USER
+    // SuperAdmin (any client)
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Client,SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteUser(string id)
     {
