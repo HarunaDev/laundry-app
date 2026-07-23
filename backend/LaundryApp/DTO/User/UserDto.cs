@@ -20,3 +20,14 @@ public class UserResponseDto
     public string UserName { get; set; } = "";
     public string Email { get; set; } = "";
 }
+
+public class UpdateUserDto
+{
+    [Required]
+    [MinLength(3)]
+    public string UserName { get; set; } = "";
+
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = "";
+}
