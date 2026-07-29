@@ -1,10 +1,8 @@
-using LaundryApp.Helpers;
-
 namespace LaundryApp.Models;
 
 public class LaundryService
 {
-    public string Id { get; set; } = IdGenerator.GenerateId();
+    public int Id { get; set; }
 
     public required string Name { get; set; }
 
@@ -14,7 +12,7 @@ public class LaundryService
 
     public bool IsDeleted { get; set; } = false;
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
