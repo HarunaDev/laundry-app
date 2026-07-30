@@ -17,6 +17,11 @@ public class LaundryAppDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens =>
         Set<RefreshToken>();
 
+    public DbSet<LaundryService> LaundryServices =>
+        Set<LaundryService>();
+
+    public DbSet<LaundryItem> LaundryItems => Set<LaundryItem>();
+
     // public DbSet<Category> Categories => Set<Category>();
 
     // public DbSet<Product> Products => Set<Product>();

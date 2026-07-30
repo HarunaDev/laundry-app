@@ -43,6 +43,8 @@ builder.Services.AddSingleton<PasswordService>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<LaundryServiceService>();
+builder.Services.AddScoped<LaundryItemService>();
 builder.Services.AddSingleton<HtmlSanitizerService>();
 
 // add controllers

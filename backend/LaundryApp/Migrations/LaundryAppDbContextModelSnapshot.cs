@@ -22,6 +22,84 @@ namespace LaundryApp.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("LaundryApp.Models.LaundryItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("LaundryServiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LaundryServiceId");
+
+                    b.ToTable("LaundryItems");
+                });
+
+            modelBuilder.Entity("LaundryApp.Models.LaundryService", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LaundryServices");
+                });
+
             modelBuilder.Entity("LaundryApp.Models.RefreshToken", b =>
                 {
                     b.Property<string>("Id")
@@ -91,6 +169,17 @@ namespace LaundryApp.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("LaundryApp.Models.LaundryItem", b =>
+                {
+                    b.HasOne("LaundryApp.Models.LaundryService", "LaundryService")
+                        .WithMany("LaundryItems")
+                        .HasForeignKey("LaundryServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LaundryService");
+                });
+
             modelBuilder.Entity("LaundryApp.Models.RefreshToken", b =>
                 {
                     b.HasOne("LaundryApp.Models.User", "User")
@@ -100,6 +189,11 @@ namespace LaundryApp.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LaundryApp.Models.LaundryService", b =>
+                {
+                    b.Navigation("LaundryItems");
                 });
 
             modelBuilder.Entity("LaundryApp.Models.User", b =>
