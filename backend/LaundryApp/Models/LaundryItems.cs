@@ -1,14 +1,15 @@
 namespace LaundryApp.Models;
-
-public class LaundryService
+public class LaundryItem
 {
     public int Id { get; set; }
 
     public required string Name { get; set; }
 
-    public string? Description { get; set; }
+    public decimal Price { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public int LaundryServiceId { get; set; }
+
+    public LaundryService LaundryService { get; set; } = null!;
 
     public bool IsDeleted { get; set; } = false;
 
@@ -19,7 +20,4 @@ public class LaundryService
     public DateTime? DeletedAt { get; set; }
 
     public string? DeletedBy { get; set; }
-
-    public ICollection<LaundryItem> LaundryItems
-        { get; set; } = new List<LaundryItem>();
 }

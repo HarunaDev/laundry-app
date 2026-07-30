@@ -3,6 +3,7 @@ using System;
 using LaundryApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LaundryApp.Migrations
 {
     [DbContext(typeof(LaundryAppDbContext))]
-    partial class LaundryAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260729155632_LaundryItemsModel")]
+    partial class LaundryItemsModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
