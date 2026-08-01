@@ -20,7 +20,14 @@ public class LaundryAppDbContext : DbContext
     public DbSet<LaundryService> LaundryServices =>
         Set<LaundryService>();
 
-    public DbSet<LaundryItem> LaundryItems => Set<LaundryItem>();
+    public DbSet<LaundryItem> LaundryItems =>
+        Set<LaundryItem>();
+
+    public DbSet<LaundryLocation> LaundryLocations =>
+        Set<LaundryLocation>();
+
+    public DbSet<DeliveryMethod> DeliveryMethods =>
+        Set<DeliveryMethod>();
 
     // public DbSet<Category> Categories => Set<Category>();
 
