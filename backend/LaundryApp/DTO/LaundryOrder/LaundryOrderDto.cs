@@ -114,3 +114,12 @@ public class OrderItemDto
 
     public decimal TotalPrice { get; set; }
 }
+
+public class GetLaundryOrdersDto
+{
+    public string? Status { get; set; } = "All";
+
+    public int PageNumber { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
+}

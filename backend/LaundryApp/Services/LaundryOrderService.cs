@@ -2,6 +2,8 @@ using System.Security.Claims;
 using LaundryApp.Data;
 using LaundryApp.DTO.LaundryOrder;
 using LaundryApp.Exceptions;
+using LaundryApp.Extensions;
+using LaundryApp.DTO.Responses;
 using LaundryApp.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -219,27 +221,17 @@ public class LaundryOrderService
 
             DeliveryMethodId = deliveryMethod.Id,
 
-            LaundryLocationId =
-                laundryLocation?.Id,
+            LaundryLocationId = laundryLocation?.Id,
 
-            PickupAddress =
-            requiresPickupAddress
-            ? dto.PickupAddress
-            : null,
+            PickupAddress = requiresPickupAddress ? dto.PickupAddress : null,
 
-            DeliveryAddress =
-            requiresDeliveryAddress
-            ? dto.DeliveryAddress
-            : null,
+            DeliveryAddress = requiresDeliveryAddress ? dto.DeliveryAddress : null,
 
-            DeliveryPrice =
-                deliveryMethod.Price,
+            DeliveryPrice = deliveryMethod.Price,
 
-            Status =
-                initialStatus,
+            Status = initialStatus,
 
-            CreatedAt =
-                DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
 
@@ -255,24 +247,17 @@ public class LaundryOrderService
 
             var orderItem = new OrderItem
             {
-                LaundryItemId =
-                    laundryItem.Id,
+                LaundryItemId = laundryItem.Id,
 
-                LaundryItemName =
-                    laundryItem.Name,
+                LaundryItemName = laundryItem.Name,
 
-                LaundryServiceName =
-                    laundryItem.LaundryService.Name,
+                LaundryServiceName = laundryItem.LaundryService.Name,
 
-                UnitPrice =
-                    laundryItem.Price,
+                UnitPrice = laundryItem.Price,
 
-                Quantity =
-                    requestItem.Quantity,
+                Quantity = requestItem.Quantity,
 
-                TotalPrice =
-                    laundryItem.Price *
-                    requestItem.Quantity
+                TotalPrice = laundryItem.Price * requestItem.Quantity
             };
 
             order.OrderItems.Add(orderItem);
@@ -283,13 +268,9 @@ public class LaundryOrderService
         // CALCULATE TOTALS
         // ------------------------------------------------------
 
-        order.ItemsTotal =
-            order.OrderItems.Sum(i =>
-                i.TotalPrice);
+        order.ItemsTotal = order.OrderItems.Sum(i => i.TotalPrice);
 
-        order.GrandTotal =
-            order.ItemsTotal +
-            order.DeliveryPrice;
+        order.GrandTotal = order.ItemsTotal + order.DeliveryPrice;
 
 
         // ------------------------------------------------------
@@ -390,40 +371,27 @@ public class LaundryOrderService
             {
                 Id = o.Id,
 
-                CustomerId =
-                    o.UserId,
+                CustomerId = o.UserId,
 
-                CustomerName =
-                    o.User.UserName,
+                CustomerName = o.User.UserName,
 
-                DeliveryMethod =
-                    o.DeliveryMethod.Name,
+                DeliveryMethod = o.DeliveryMethod.Name,
 
-                LaundryLocation =
-                    o.LaundryLocation != null
-                        ? o.LaundryLocation.Name
-                        : null,
+                LaundryLocation = o.LaundryLocation != null ? o.LaundryLocation.Name : null,
 
-                PickupAddress =
-                    o.DeliveryAddress,
+                PickupAddress = o.PickupAddress,
 
-                DeliveryAddress =
-                    o.DeliveryAddress,
+                DeliveryAddress = o.DeliveryAddress,
 
-                DeliveryPrice =
-                    o.DeliveryPrice,
+                DeliveryPrice = o.DeliveryPrice,
 
-                ItemsTotal =
-                    o.ItemsTotal,
+                ItemsTotal = o.ItemsTotal,
 
-                GrandTotal =
-                    o.GrandTotal,
+                GrandTotal = o.GrandTotal,
 
-                Status =
-                    o.Status.ToString(),
+                Status = o.Status.ToString(),
 
-                CreatedAt =
-                    o.CreatedAt
+                CreatedAt = o.CreatedAt
             })
             .ToListAsync();
     }
@@ -435,55 +403,72 @@ public class LaundryOrderService
     // ADMIN / SUPERADMIN
     // ==========================================================
 
-    public async Task<IEnumerable<LaundryOrderDto>>
-        GetAllAsync()
+    public async Task<(IEnumerable<LaundryOrderDto> Items, PagedResponse<LaundryOrderDto> Meta)>
+        GetAllAsync(GetLaundryOrdersDto dto)
     {
-        return await _context.LaundryOrders
+        var query = _context.LaundryOrders
             .Where(o => !o.IsDeleted)
-            .Include(o => o.User)
-            .Include(o => o.DeliveryMethod)
-            .Include(o => o.LaundryLocation)
-            .OrderByDescending(o => o.CreatedAt)
-            .Select(o => new LaundryOrderDto
+            // .Include(o => o.User)
+            // .Include(o => o.DeliveryMethod)
+            // .Include(o => o.LaundryLocation)
+            .AsQueryable();
+
+        // ------------------------------------------------------
+        // FILTER BY STATUS
+        // ------------------------------------------------------
+
+        if (!string.IsNullOrWhiteSpace(dto.Status) &&
+            !dto.Status.Equals(
+                "All",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            if (!Enum.TryParse<OrderStatus>(
+                    dto.Status,
+                    true,
+                    out var status))
             {
-                Id = o.Id,
+                throw new BadRequestException(
+                    "Invalid order status. Allowed values are Pending, InProgress, Completed, or All.");
+            }
 
-                CustomerId =
-                    o.UserId,
+            query = query.Where(o =>
+                o.Status == status);
+        }
 
-                CustomerName =
-                    o.User.UserName,
+        // .OrderByDescending(o => o.CreatedAt)
+        var orders = query
+        .OrderByDescending(o => o.CreatedAt)
+        .Select(o => new LaundryOrderDto
+        {
+            Id = o.Id,
 
-                DeliveryMethod =
-                    o.DeliveryMethod.Name,
+            CustomerId = o.UserId,
 
-                LaundryLocation =
-                    o.LaundryLocation != null
-                        ? o.LaundryLocation.Name
-                        : null,
+            CustomerName = o.User.UserName,
 
-                PickupAddress =
-                    o.DeliveryAddress,
+            DeliveryMethod = o.DeliveryMethod.Name,
 
-                DeliveryAddress =
-                    o.DeliveryAddress,
+            LaundryLocation = o.LaundryLocation != null ? o.LaundryLocation.Name : null,
 
-                DeliveryPrice =
-                    o.DeliveryPrice,
+            PickupAddress = o.PickupAddress,
 
-                ItemsTotal =
-                    o.ItemsTotal,
+            DeliveryAddress = o.DeliveryAddress,
 
-                GrandTotal =
-                    o.GrandTotal,
+            DeliveryPrice = o.DeliveryPrice,
 
-                Status =
-                    o.Status.ToString(),
+            ItemsTotal = o.ItemsTotal,
 
-                CreatedAt =
-                    o.CreatedAt
-            })
-            .ToListAsync();
+            GrandTotal = o.GrandTotal,
+
+            Status = o.Status.ToString(),
+
+            CreatedAt = o.CreatedAt
+        });
+
+        // Pagination
+
+        return await orders.ToPagedResponseAsync(dto.PageNumber, dto.PageSize);
+        // .ToListAsync();
     }
 
 
@@ -612,14 +597,11 @@ public class LaundryOrderService
         // UPDATE ORDER
         // ------------------------------------------------------
 
-        order.DeliveryMethodId =
-            deliveryMethod.Id;
+        order.DeliveryMethodId = deliveryMethod.Id;
 
-        order.DeliveryPrice =
-            deliveryMethod.Price;
+        order.DeliveryPrice = deliveryMethod.Price;
 
-        order.LaundryLocationId =
-            laundryLocation?.Id;
+        order.LaundryLocationId = laundryLocation?.Id;
 
         // order.DeliveryAddress =
         //     dto.DeliveryAddress;
@@ -654,23 +636,17 @@ public class LaundryOrderService
 
             var orderItem = new OrderItem
             {
-                LaundryItemId =
-                    laundryItem.Id,
+                LaundryItemId = laundryItem.Id,
 
-                LaundryItemName =
-                    laundryItem.Name,
+                LaundryItemName = laundryItem.Name,
 
-                LaundryServiceName =
-                    laundryItem.LaundryService.Name,
+                LaundryServiceName = laundryItem.LaundryService.Name,
 
-                UnitPrice =
-                    laundryItem.Price,
+                UnitPrice = laundryItem.Price,
 
-                Quantity =
-                    requestItem.Quantity,
+                Quantity = requestItem.Quantity,
 
-                TotalPrice =
-                    laundryItem.Price *
+                TotalPrice = laundryItem.Price *
                     requestItem.Quantity
             };
 
@@ -686,26 +662,20 @@ public class LaundryOrderService
             order.OrderItems.Sum(i =>
                 i.TotalPrice);
 
-        order.GrandTotal =
-            order.ItemsTotal +
-            order.DeliveryPrice;
+        order.GrandTotal = order.ItemsTotal + order.DeliveryPrice;
 
 
         // ------------------------------------------------------
         // UPDATE STATUS
         // ------------------------------------------------------
 
-        order.Status =
-            OrderStatus.InProgress;
+        order.Status = OrderStatus.InProgress;
 
-        order.ConfirmedAt =
-            DateTime.UtcNow;
+        order.ConfirmedAt = DateTime.UtcNow;
 
-        order.ConfirmedBy =
-            currentUserId;
+        order.ConfirmedBy = currentUserId;
 
-        order.UpdatedAt =
-            DateTime.UtcNow;
+        order.UpdatedAt = DateTime.UtcNow;
 
 
         await _context.SaveChangesAsync();
@@ -804,60 +774,43 @@ public class LaundryOrderService
         {
             Id = order.Id,
 
-            CustomerId =
-                order.UserId,
+            CustomerId = order.UserId,
 
-            CustomerName =
-                order.User.UserName,
+            CustomerName = order.User.UserName,
 
-            DeliveryMethod =
-                order.DeliveryMethod.Name,
+            DeliveryMethod = order.DeliveryMethod.Name,
 
-            LaundryLocation =
-                order.LaundryLocation?.Name,
+            LaundryLocation = order.LaundryLocation?.Name,
 
-            PickupAddress =
-                order.PickupAddress,
+            PickupAddress = order.PickupAddress,
 
-            DeliveryAddress =
-                order.DeliveryAddress,
+            DeliveryAddress = order.DeliveryAddress,
 
-            DeliveryPrice =
-                order.DeliveryPrice,
+            DeliveryPrice = order.DeliveryPrice,
 
-            ItemsTotal =
-                order.ItemsTotal,
+            ItemsTotal = order.ItemsTotal,
 
-            GrandTotal =
-                order.GrandTotal,
+            GrandTotal = order.GrandTotal,
 
-            Status =
-                order.Status.ToString(),
+            Status = order.Status.ToString(),
 
-            CreatedAt =
-                order.CreatedAt,
+            CreatedAt = order.CreatedAt,
 
             Items =
                 order.OrderItems.Select(i =>
                     new OrderItemDto
                     {
-                        LaundryItemId =
-                            i.LaundryItemId,
+                        LaundryItemId = i.LaundryItemId,
 
-                        LaundryItemName =
-                            i.LaundryItemName,
+                        LaundryItemName = i.LaundryItemName,
 
-                        LaundryServiceName =
-                            i.LaundryServiceName,
+                        LaundryServiceName = i.LaundryServiceName,
 
-                        UnitPrice =
-                            i.UnitPrice,
+                        UnitPrice = i.UnitPrice,
 
-                        Quantity =
-                            i.Quantity,
+                        Quantity = i.Quantity,
 
-                        TotalPrice =
-                            i.TotalPrice
+                        TotalPrice = i.TotalPrice
                     })
                     .ToList()
         };

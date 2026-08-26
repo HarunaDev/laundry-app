@@ -117,7 +117,7 @@ public class LaundryOrderServiceController : ControllerBase
     // ADMIN / SUPERADMIN ONLY
     // ==========================================================
 
-    [HttpGet]
+    [HttpPost("filter")]
     [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(
         typeof(IEnumerable<LaundryOrderDto>),
@@ -126,13 +126,18 @@ public class LaundryOrderServiceController : ControllerBase
         StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(
         StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<IEnumerable<LaundryOrderDto>>>
-        GetAllOrders()
+    public async Task<ActionResult>
+        GetAllOrders( [FromBody] GetLaundryOrdersDto dto)
     {
         var result =
-            await _orderService.GetAllAsync();
+            await _orderService.GetAllAsync(dto);
 
-        return Ok(result);
+        return Ok(new
+        {
+            items = result.Items,
+            meta = result.Meta
+        }
+        );
     }
 
 
