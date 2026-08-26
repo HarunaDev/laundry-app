@@ -1,4 +1,5 @@
 namespace LaundryApp.Models;
+
 public class LaundryItem
 {
     public int Id { get; set; }
@@ -20,4 +21,7 @@ public class LaundryItem
     public DateTime? DeletedAt { get; set; }
 
     public string? DeletedBy { get; set; }
+    
+    public ICollection<OrderItem> OrderItems { get; set; }
+    = new List<OrderItem>();
 }

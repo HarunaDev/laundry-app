@@ -21,4 +21,7 @@ public class DeliveryMethod
     public DateTime? DeletedAt { get; set; }
 
     public string? DeletedBy { get; set; }
+
+    public ICollection<LaundryOrder> LaundryOrders { get; set; }
+    = new List<LaundryOrder>();
 }
