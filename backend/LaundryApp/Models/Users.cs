@@ -27,4 +27,9 @@ public class User
         RefreshTokens
     { get; set; }
         = new List<RefreshToken>();
+
+    public ICollection<LaundryOrder> LaundryOrders
+    {
+        get; set;
+    } = new List<LaundryOrder>();
 }

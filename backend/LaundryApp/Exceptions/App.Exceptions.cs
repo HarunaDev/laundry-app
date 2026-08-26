@@ -39,3 +39,11 @@ public class NotFoundException : AppException
     {
     }
 }
+
+public class BadRequestException : Exception
+{
+    public BadRequestException(string message)
+        : base(message)
+    {
+    }
+}
