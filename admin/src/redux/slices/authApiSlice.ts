@@ -1,6 +1,6 @@
 import { generalApiSlice } from "../apiSlice";
 
-interface LoginBody {
+export interface LoginBody {
   email: string;
   password: string;
 }
@@ -50,7 +50,7 @@ const authApiSlice = generalApiSlice.injectEndpoints({
         body,
       }),
     }),
-    getRefreshToken: builder.mutation<unknown, RefreshTokenBody>({
+    getRefreshToken: builder.mutation<RefreshTokenResponse, RefreshTokenBody>({
       query: (body) => ({
         url: "/auth/refresh",
         method: "POST",

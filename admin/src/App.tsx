@@ -5,8 +5,14 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import DashboardLayout from './components/layout/DashboardLayout';
+import { Login } from './pages/auth';
 
 const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <Login />,
+  },
+
   {
     element: <DashboardLayout />,
     children: [
