@@ -94,7 +94,7 @@ import {
 } from "../../../redux/slices/authApiSlice";
 
 import {
-  setUserInfo,
+    setCredentials
 } from "../../../redux/appSlice";
 
 interface BackendError {
@@ -109,7 +109,7 @@ const isBackendError = (
 ): data is BackendError => {
   return (
     typeof data === "object" &&
-    data !== null
+    data !== null && "message" in data
   );
 };
 
@@ -137,16 +137,15 @@ export const useLogin = () => {
 
     const {
       userId,
-      tokens,
+      accessToken,
     } = response.data;
 
     dispatch(
-      setUserInfo({
-        userId,
-        accessToken:
-          tokens.accessToken,
-        refreshToken:
-          tokens.refreshToken,
+      setCredentials({
+        user: {
+            userId
+        },
+        accessToken
       })
     );
 

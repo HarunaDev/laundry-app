@@ -4,15 +4,26 @@ namespace LaundryApp.DTO.Auth;
 
 public class AuthResultDto
 {
-    public string UserId { get; set; } = "";
-    public required TokenDto Tokens { get; set; }
+    public string UserId { get; set; } = string.Empty;
+
+    public string AccessToken { get; set; } = string.Empty;
+
+    public string RefreshToken { get; set; } = string.Empty;
+    // public required TokenDto Tokens { get; set; }
 }
 
-public class TokenDto
+public class AuthResponseDto
 {
-    public string AccessToken { get; set; } = "";
-    public string RefreshToken { get; set; } = "";
+    public string UserId { get; set; } = string.Empty;
+
+    public string AccessToken { get; set; } = string.Empty;
 }
+
+// public class TokenDto
+// {
+//     public string AccessToken { get; set; } = "";
+//     public string RefreshToken { get; set; } = "";
+// }
 
 public class LoginDto
 {
@@ -40,8 +51,8 @@ public class RegisterDto
     public required string Password { get; set; } = string.Empty;
 }
 
-public class RefreshTokenRequestDto
-{
-    [Required(ErrorMessage = "Refresh token is required")]
-    public required string RefreshToken { get; set; }
-}
+// public class RefreshTokenRequestDto
+// {
+//     [Required(ErrorMessage = "Refresh token is required")]
+//     public required string RefreshToken { get; set; }
+// }

@@ -9,8 +9,6 @@ interface UserInfo {
   email?: string;
   phoneNumber?: string;
   profilePictureFileUri?: string;
-  accessToken?: string;
-  refreshToken?: string;
   role?: string;
 }
 
@@ -25,22 +23,25 @@ interface BasicProfileInfo {
 
 interface AppState {
   app_loading: boolean;
+
   userInfo: UserInfo | null;
-  appMode: unknown | null; // Adjust based on actual type if known
+
+  accessToken: string | null;
+
+  authInitialized: boolean;
+
+  appMode: unknown | null;
+
   basicProfileInfo: BasicProfileInfo | null;
 }
 
 const initialState: AppState = {
   app_loading: false,
-  userInfo: localStorage.getItem("userInfo")
-    ? JSON.parse(localStorage.getItem("userInfo") as string)
-    : null,
-  appMode: localStorage.getItem("appMode")
-    ? JSON.parse(localStorage.getItem("appMode") as string)
-    : null,
-  basicProfileInfo: localStorage.getItem("basicProfileInfo")
-    ? JSON.parse(localStorage.getItem("basicProfileInfo") as string)
-    : null,
+  userInfo: null,
+  accessToken: null,
+  authInitialized: false,
+  appMode: null,
+  basicProfileInfo: null,
 };
 
 const appSlice = createSlice({
@@ -50,115 +51,81 @@ const appSlice = createSlice({
     setAppLoading: (state, action: PayloadAction<boolean>) => {
       state.app_loading = action.payload;
     },
+
+    setCredentials: (
+      state,
+      action: PayloadAction<{
+        user: UserInfo;
+        accessToken: string;
+      }>
+    ) => {
+      state.userInfo = action.payload.user;
+
+      state.accessToken = action.payload.accessToken;
+    },
+
+    setAuthInitialized: ( state, action: PayloadAction<boolean>) => {
+        state.authInitialized = action.payload;
+    },
+
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      state.accessToken = action.payload;
+    },
+
     setUserInfo: (state, action: PayloadAction<Partial<UserInfo>>) => {
-      state.userInfo = {
-        ...state.userInfo,
-        ...action.payload,
-      };
-      localStorage.setItem(
-        "userInfo",
-        JSON.stringify({
-          ...state.userInfo,
-          ...action.payload,
-        })
-      );
+      state.userInfo = action.payload;
     },
     storeBasicProfileInfo: (state, action: PayloadAction<BasicProfileInfo>) => {
       state.basicProfileInfo = action.payload;
     },
     logOut: (state) => {
-      const userrec = JSON.parse(localStorage.getItem("userInfo") as string) as UserInfo | null;
       state.userInfo = null;
-      localStorage.removeItem("userInfo");
-      localStorage.removeItem("appMode");
 
-      if (userrec?.role === "ADMIN") {
-        window.location.href = "/login";
-      } else {
-        window.location.href = "/";
-      }
+      state.accessToken = null;
+
+      state.appMode = null;
+
+      state.basicProfileInfo = null;
     },
     storeAppMode: (state, action: PayloadAction<unknown>) => {
       state.appMode = action.payload;
-      localStorage.setItem("appMode", JSON.stringify(action.payload));
-    },
-    setTokens: (state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) => {
-      state.userInfo = {
-        ...state.userInfo,
-        accessToken: action.payload.accessToken,
-        refreshToken: action.payload.refreshToken,
-      };
-      localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
-    },
-    setUserDetails: (state, action: PayloadAction<{
-      userId: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-      phoneNumber: string;
-      authResponse: { accessToken: string; refreshToken: string };
-      profilePictureFileUri: string;
-    }>) => {
-      const { userId, firstName, lastName, email, phoneNumber, authResponse, profilePictureFileUri } = action.payload;
-      state.userInfo = {
-        userId,
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        profilePictureFileUri,
-        accessToken: authResponse?.accessToken,
-        refreshToken: authResponse?.refreshToken,
-      };
-      localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
     },
     setBasicProfileInfo: (state, action: PayloadAction<BasicProfileInfo>) => {
-      const sanitizedData: BasicProfileInfo = {
-        ...action.payload,
-        // department: action.payload.department || { value: '', label: '' },
-      };
-      state.basicProfileInfo = sanitizedData;
-      localStorage.setItem("basicProfileInfo", JSON.stringify(sanitizedData));
+      state.basicProfileInfo = action.payload;
     },
-    setProfileInfo: (state, action: PayloadAction<Partial<BasicProfileInfo>>) => {
+    setProfileInfo: (
+      state,
+      action: PayloadAction<Partial<BasicProfileInfo>>
+    ) => {
       state.basicProfileInfo = {
         ...state.basicProfileInfo,
         ...action.payload,
-        // department: action.payload.department || { value: '', label: '' },
       };
-      localStorage.setItem("basicProfileInfo", JSON.stringify(state.basicProfileInfo));
     },
     clearBasicProfileInfo: (state) => {
       state.basicProfileInfo = null;
-      localStorage.removeItem("basicProfileInfo");
     },
-    // updateBasicProfileField: (state, action: PayloadAction<{ field: string; value: unknown }>) => {
-    //   const { field, value } = action.payload;
-    //   if (state.basicProfileInfo) {
-    //     state.basicProfileInfo = {
-    //       ...state.basicProfileInfo,
-    //       [field]: value
-    //     };
-    //     localStorage.setItem("basicProfileInfo", JSON.stringify(state.basicProfileInfo));
-    //   }
-    // },
   },
 });
 
-export const selectBasicProfileInfo = (state: RootState): BasicProfileInfo | null => state.app.basicProfileInfo;
-export const selectUserInfo = (state: RootState): UserInfo | null => state.app.userInfo;
-export default appSlice.reducer;
+// export const selectBasicProfileInfo = (state: RootState): BasicProfileInfo | null => state.app.basicProfileInfo;
 export const {
   setAppLoading,
+  setCredentials,
+  setAuthInitialized,
+  setAccessToken,
   setUserInfo,
-  storeBasicProfileInfo,
   logOut,
   storeAppMode,
-  setUserDetails,
-  setTokens,
   setBasicProfileInfo,
   setProfileInfo,
   clearBasicProfileInfo,
-  
 } = appSlice.actions;
-export const appMode = (state: RootState): unknown | null => state.app.appMode;
+
+export const selectUserInfo = (state: RootState): UserInfo | null =>
+  state.app.userInfo;
+export const selectAccessToken =
+  (state: RootState) =>
+    state.app.accessToken;
+export default appSlice.reducer;
+// export const appMode = (state: RootState): unknown | null => state.app.appMode;

@@ -105,23 +105,20 @@ public class AuthService
         return new AuthResultDto
         {
             UserId = user.Id,
-            Tokens = new TokenDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            }
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
         };
     }
 
-    public async Task<TokenDto> RefreshTokenAsync(
-        RefreshTokenRequestDto dto)
+    public async Task<AuthResultDto> RefreshTokenAsync(
+        string refreshToken)
     {
         var token =
             await _context.RefreshTokens
                 .Include(r => r.User)
                 .FirstOrDefaultAsync(
                     r => r.Token ==
-                         dto.RefreshToken);
+                         refreshToken);
 
         if (token is null)
         {
@@ -148,8 +145,9 @@ public class AuthService
                 token.User.UserName,
                 token.User.Role.ToString());
 
-        return new TokenDto
+        return new AuthResultDto
         {
+            UserId = token.User.Id,
             AccessToken = accessToken,
             RefreshToken = token.Token
         };
