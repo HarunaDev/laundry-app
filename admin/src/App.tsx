@@ -4,6 +4,7 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
+import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import { Login } from './pages/auth';
 
@@ -14,7 +15,11 @@ const router = createBrowserRouter([
   },
 
   {
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "/",
