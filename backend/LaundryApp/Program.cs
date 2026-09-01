@@ -132,6 +132,18 @@ builder.Services.AddAuthentication(
 
 builder.Services.AddAuthorization();
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AdminCors", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // rate limiter
 builder.Services.AddRateLimiter(options =>
 {
@@ -196,6 +208,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseCors("AdminCors");
 app.UseRateLimiter();
 app.UseGlobalExceptionHandler();
 app.UseSecurityHeaders();
