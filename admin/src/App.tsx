@@ -7,6 +7,7 @@ import {
 import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import { Login } from './pages/auth';
+import Home from "./pages/home/Home";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +28,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard",
-        element: <div>Dashboard Content</div>,
+        element: <Home />,
       },
       {
         path: "/orders",

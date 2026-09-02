@@ -1,36 +1,53 @@
 import type { JSX } from "react";
-import { Zap, Coins, Star } from "lucide-react";
+
+import {
+  Bell,
+  Menu,
+  Search,
+} from "lucide-react";
 
 const TopBar = (): JSX.Element => {
   return (
-    <header className="h-full flex items-center justify-between px-6 border-b border-white/10">
-      <h1></h1>
-      {/* <h1 className="text-lg font-semibold tracking-wide text-accent">
-        NEON ODYSSEY
-      </h1> */}
+    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
+      <button
+        type="button"
+        className="text-gray-500 lg:hidden"
+      >
+        <Menu size={22} />
+      </button>
 
-      <div className="flex items-center gap-8">
-        {/* LVL Badge */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow/10 shadow-[0_0_10px_rgba(255,228,131,0.4)]">
-          <Star size={14} className="text-yellow" />
-          {/* <span className="text-sm font-semibold text-yellow">LVL 1</span> */}
+      <div className="hidden flex-1 justify-center md:flex">
+        <div className="relative w-full max-w-md">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+
+          <input
+            type="text"
+            placeholder="Search orders, customers..."
+            className="
+              w-full rounded-lg border border-gray-200
+              py-2 pl-9 pr-4 text-sm
+              outline-none
+              focus:border-blue-500
+            "
+          />
         </div>
+      </div>
 
-        {/* Lightning */}
-        <div className="flex items-center gap-1 text-gray-400">
-          <Zap size={16} />
-          {/* <span className="text-sm">0</span> */}
-        </div>
+      <div className="flex items-center gap-5">
+        <button
+          type="button"
+          className="relative text-gray-500"
+        >
+          <Bell size={19} />
 
-        {/* Coins */}
-        <div className="flex items-center gap-1 text-yellow">
-          <Coins size={16} />
-          {/* <span className="text-sm font-medium">30,000</span> */}
-        </div>
+          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500" />
+        </button>
 
-        {/* Avatar */}
-        <div className="w-9 h-9 rounded-full bg-gray-600 overflow-hidden">
-          {/*  */}
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-sm font-medium">
+          J
         </div>
       </div>
     </header>
