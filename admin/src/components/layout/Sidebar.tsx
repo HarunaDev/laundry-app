@@ -1,91 +1,147 @@
 import { NavLink } from "react-router-dom";
-import { Home, Shield, Sword, Settings } from "lucide-react";
+
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Users,
+  Shirt,
+  MapPin,
+  Truck,
+  UserCog,
+  BarChart3,
+  Settings,
+  LogOut,
+} from "lucide-react";
+
 import type { JSX } from "react";
 import type { NavItem } from "../../types/navigation";
-// import homeIcon from "../../assets/img/odyssey-icon.png";
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", path: "/dashboard", icon: <Home size={18} /> },
-  { label: "Orders", path: "/orders", icon: <Sword size={18} /> },
-  { label: "A", path: "/armory", icon: <Shield size={18} /> },
-  { label: "S", path: "/settings", icon: <Settings size={18} /> },
+  {
+    label: "Dashboard",
+    path: "/dashboard",
+    icon: <LayoutDashboard size={17} />,
+  },
+
+  {
+    label: "Orders",
+    path: "/orders",
+    icon: <ClipboardList size={17} />,
+  },
+
+  {
+    label: "Customers",
+    path: "/customers",
+    icon: <Users size={17} />,
+  },
+
+  {
+    label: "Services",
+    path: "/services",
+    icon: <Shirt size={17} />,
+  },
+
+  {
+    label: "Laundry Items",
+    path: "/laundry-items",
+    icon: <Shirt size={17} />,
+  },
+
+  {
+    label: "Locations",
+    path: "/locations",
+    icon: <MapPin size={17} />,
+  },
+
+  {
+    label: "Delivery Methods",
+    path: "/delivery-methods",
+    icon: <Truck size={17} />,
+  },
+
+  {
+    label: "Users",
+    path: "/users",
+    icon: <UserCog size={17} />,
+  },
+
+  {
+    label: "Reports",
+    path: "/reports",
+    icon: <BarChart3 size={17} />,
+  },
+
+  {
+    label: "Settings",
+    path: "/settings",
+    icon: <Settings size={17} />,
+  },
 ];
 
 const Sidebar = (): JSX.Element => {
   return (
-    <aside className="w-20 lg:w-52 bg-sidebar flex flex-col py-4">
-      <div className="flex flex-col h-full justify-between">
-        <div>
-          <div className="mb-8 w-full flex flex-col lg:justify-start px-4">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg lg:hidden"
-              style={{
-                background: "linear-gradient(180deg, #AA8AFF, #81ECFF)",
-              }}
-            >
-              <img
-                src={""}
-                alt="Home"
-                className="w-5 h-5 object-contain"
-              />
-            </div>
-
-            <h1 className="hidden lg:block text-lg mt-2 font-semibold tracking-wide text-accent">
-              Laundry App
-            </h1>
+    <aside className="hidden w-64 flex-col bg-slate-950 text-white lg:flex">
+      <div className="border-b border-white/10 px-6 py-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
+            <Shirt size={18} />
           </div>
 
-          {/* Nav */}
-          <nav className="flex flex-col gap-4 w-full">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `
-            w-full h-12 flex items-center justify-center lg:justify-start gap-4 px-4
-            transition-all duration-300
-            ${
-              isActive
-                ? "text-accent border-r-2 border-accent shadow-[0_0_12px_rgba(34,211,238,0.3)]"
-                : "text-gray-400 hover:text-white"
+          <span className="font-semibold">
+            Laundry Admin
+          </span>
+        </div>
+      </div>
+
+      <nav className="flex-1 space-y-1 px-3 py-5">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `
+              flex items-center gap-3 rounded-lg px-3 py-3
+              text-sm transition-colors
+              ${
+                isActive
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-400 hover:bg-white/5 hover:text-white"
+              }
+              `
             }
-          `
-                }
-                style={({ isActive }) =>
-                  isActive
-                    ? {
-                        background:
-                          "linear-gradient(to right, #7C3AED33, #06B6D433)",
-                      }
-                    : undefined
-                }
-              >
-                {item.icon}
+          >
+            {item.icon}
 
-                {/* TEXT (hidden on small screens) */}
-                <span className="hidden lg:inline text-lg">{item.label}</span>
-              </NavLink>
-            ))}
-          </nav>
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="border-t border-white/10 p-4">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-700">
+            J
+          </div>
+
+          <div>
+            <p className="text-sm font-medium">
+              John Admin
+            </p>
+
+            <p className="text-xs text-gray-400">
+              Super Admin
+            </p>
+          </div>
         </div>
 
-        {/* BOTTOM SECTION */}
-        <div className="flex flex-col gap-3 px-0 lg:px-4">
-          {/* Help */}
-          <button className="w-full h-12 flex items-center justify-center lg:justify-start gap-3 text-gray-400 hover:text-white transition">
-            <div className="w-5 h-5 mr-2 ml-1 flex items-center justify-center rounded-full border border-gray-500">
-              ?
-            </div>
-            <span className="hidden lg:inline text-sm">Help</span>
-          </button>
+        <button
+          type="button"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+        >
+          <LogOut size={17} />
 
-          {/* Logout */}
-          <button className="w-full h-12 flex items-center justify-center lg:justify-start gap-3 text-gray-400 hover:text-red-400 transition">
-            <div className="w-8 h-3 flex items-center justify-center">⎋</div>
-            <span className="hidden lg:inline text-sm">Logout</span>
-          </button>
-        </div>
+          Logout
+        </button>
       </div>
     </aside>
   );

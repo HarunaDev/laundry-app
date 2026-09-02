@@ -5,14 +5,14 @@ import type { JSX } from "react";
 
 const DashboardLayout = (): JSX.Element => {
   return (
-    <div className="flex h-screen bg-sidebar text-white">
+    <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col h-full">
+      <div className="flex min-w-0 flex-1 flex-col">
         <div className="h-20 flex-shrink-0">
           <TopBar />
         </div>
-        <main className="flex-1 overflow-y-auto bg-dashboard p-6">
+        <main className="flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>
       </div>
