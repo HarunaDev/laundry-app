@@ -1,5 +1,5 @@
-import { NavLink } from "react-router-dom";
-
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -15,6 +15,10 @@ import {
 
 import type { JSX } from "react";
 import type { NavItem } from "../../types/navigation";
+
+import { logOut } from "../../redux/appSlice";
+import { generalApiSlice } from "../../redux/apiSlice";
+import type { AppDispatch } from "../../redux/store";
 
 const navItems: NavItem[] = [
   {
@@ -79,6 +83,20 @@ const navItems: NavItem[] = [
 ];
 
 const Sidebar = (): JSX.Element => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const navigate = useNavigate();
+
+  // const userInfo = useSelector(selectUserInfo);
+
+  const handleLogout = () => {
+    console.log("LOGOUT CLICKED");
+    dispatch(logOut());
+    dispatch(generalApiSlice.util.resetApiState());
+    navigate("/login", {
+      replace: true,
+    });
+  };
   return (
     <aside className="hidden w-64 flex-col bg-slate-950 text-white lg:flex">
       <div className="border-b border-white/10 px-6 py-5">
@@ -87,9 +105,7 @@ const Sidebar = (): JSX.Element => {
             <Shirt size={18} />
           </div>
 
-          <span className="font-semibold">
-            Laundry Admin
-          </span>
+          <span className="font-semibold">Laundry Admin</span>
         </div>
       </div>
 
@@ -124,22 +140,18 @@ const Sidebar = (): JSX.Element => {
           </div>
 
           <div>
-            <p className="text-sm font-medium">
-              John Admin
-            </p>
+            <p className="text-sm font-medium">John Admin</p>
 
-            <p className="text-xs text-gray-400">
-              Super Admin
-            </p>
+            <p className="text-xs text-gray-400">Super Admin</p>
           </div>
         </div>
 
         <button
           type="button"
+          onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
         >
           <LogOut size={17} />
-
           Logout
         </button>
       </div>

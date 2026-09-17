@@ -1,7 +1,8 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import type { JSX } from "react";
 import { useSelector } from "react-redux";
-import type { RootState } from "./redux/store";
+// import type { RootState } from "./redux/store";
+import { selectIsAuthenticated, selectAuthInitialized } from "./redux/appSlice";
 
 // interface UserInfo {
 //   accessToken?: string;
@@ -22,18 +23,31 @@ const ProtectedRoute = ({ children }: Props): JSX.Element => {
   //     return <Navigate to="/login" replace />;
   //   }
 
-  const accessToken = useSelector((state: RootState) => state.app.accessToken);
+  const location = useLocation();
+
+  const isAuthenticated = useSelector(
+    selectIsAuthenticated
+  );
+
+  // const accessToken = useSelector(selectAccessToken);
 
   const authInitialized = useSelector(
-    (state: RootState) => state.app.authInitialized
+    selectAuthInitialized
   );
+
+  console.log("AUTH CHECK:", {
+    path: location.pathname,
+    authInitialized,
+    isAuthenticated,
+  });
+
 
   if (!authInitialized) {
     return <div>Loading...</div>;
   }
 
-  if (!accessToken) {
-    return <Navigate to="/login" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   return children;
