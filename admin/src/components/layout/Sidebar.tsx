@@ -87,15 +87,25 @@ const Sidebar = (): JSX.Element => {
 
   const navigate = useNavigate();
 
+  // const accessToken = useSelector(selectAccessToken);
   // const userInfo = useSelector(selectUserInfo);
 
-  const handleLogout = () => {
-    console.log("LOGOUT CLICKED");
-    dispatch(logOut());
-    dispatch(generalApiSlice.util.resetApiState());
-    navigate("/login", {
-      replace: true,
-    });
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    } finally {
+      dispatch(logOut());
+      dispatch(generalApiSlice.util.resetApiState());
+  
+      navigate("/login", {
+        replace: true,
+      });
+    }
   };
   return (
     <aside className="hidden w-64 flex-col bg-slate-950 text-white lg:flex">

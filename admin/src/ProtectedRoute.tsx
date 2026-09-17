@@ -35,11 +35,11 @@ const ProtectedRoute = ({ children }: Props): JSX.Element => {
     selectAuthInitialized
   );
 
-  console.log("AUTH CHECK:", {
-    path: location.pathname,
-    authInitialized,
-    isAuthenticated,
-  });
+  // console.log("AUTH CHECK:", {
+  //   path: location.pathname,
+  //   authInitialized,
+  //   isAuthenticated,
+  // });
 
 
   if (!authInitialized) {

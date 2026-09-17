@@ -153,24 +153,18 @@ public class AuthService
         };
     }
 
-    public async Task LogoutAsync(string userId)
+    public async Task LogoutAsync(string refreshToken)
     {
-        var refreshTokens = await _context.RefreshTokens
-            .Where(
-                r =>
-                    r.UserId == userId &&
-                    !r.IsRevoked)
-            .ToListAsync();
+        var token = await _context.RefreshTokens
+            .FirstOrDefaultAsync(
+                r => r.Token == refreshToken);
 
-        if (refreshTokens.Count == 0)
+        if (token is null)
         {
             return;
         }
 
-        foreach (var refreshToken in refreshTokens)
-        {
-            refreshToken.IsRevoked = true;
-        }
+        token.IsRevoked = true;
 
         await _context.SaveChangesAsync();
     }

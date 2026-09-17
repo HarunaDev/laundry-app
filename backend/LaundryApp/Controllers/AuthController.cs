@@ -155,38 +155,18 @@ public class AuthController : ControllerBase
 
     }
 
-[Authorize] // user must be logged in
-[HttpPost("logout")]
-[ProducesResponseType(
+    [HttpPost("logout")]
+    [ProducesResponseType(
         typeof(ApiResponse<object>),
         StatusCodes.Status200OK)]
-public async Task<IActionResult> Logout()
-{
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    public async Task<IActionResult> Logout()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
 
-        // revoke all active refresh tokens for this user
-        // var tokens = _context.RefreshTokens
-        //     .Where(r => r.UserId == userId && !r.IsRevoked);
-
-        // foreach (var token in tokens)
-        // {
-        //     token.IsRevoked = true;
-        // }
-
-        // await _context.SaveChangesAsync();
-    
-    if (string.IsNullOrWhiteSpace(userId))
+        if (!string.IsNullOrWhiteSpace(refreshToken))
         {
-            return Unauthorized(new ErrorResponse
-            {
-                Success = false,
-                ErrorCode = "USER_ID_MISSING",
-                Message = "Unable to identify the authenticated user.",
-                Details = []
-            });
+            await _authService.LogoutAsync(refreshToken);
         }
-
-        await _authService.LogoutAsync(userId);
 
         Response.Cookies.Delete(
             "refreshToken",
@@ -199,10 +179,10 @@ public async Task<IActionResult> Logout()
             }
         );
 
-    return Ok(new ApiResponse<object>
+        return Ok(new ApiResponse<object>
         {
             Success = true,
             Message = "Logged out successfully"
         });
-}
+    }
 }

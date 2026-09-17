@@ -102,7 +102,7 @@ const OrdersFilters = ({
 
           <option value="Pending">Pending</option>
 
-          <option value="Processing">Processing</option>
+          <option value="InProgress">InProgress</option>
 
           <option value="Completed">Completed</option>
 
