@@ -24,15 +24,15 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/",
+        index: true,
         element: <Navigate to="/dashboard" replace />,
       },
       {
-        path: "/dashboard",
+        path: "dashboard",
         element: <Home />,
       },
       {
-        path: "/orders",
+        path: "orders",
         element: <Orders />,
       },
     ],

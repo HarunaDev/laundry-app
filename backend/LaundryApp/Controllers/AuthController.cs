@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using LaundryApp.DTO.Auth;
 using LaundryApp.DTO.Responses;
 using LaundryApp.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace LaundryApp.Controllers;
 
@@ -51,7 +53,7 @@ public class AuthController : ControllerBase
         result.RefreshToken,
         new CookieOptions
         {
-    
+
             HttpOnly = true,
             // IMPORTANT:
             // false for local HTTP development.
@@ -89,28 +91,28 @@ public class AuthController : ControllerBase
     //     });
     // }
     public async Task<IActionResult> Refresh()
-{
-    var refreshToken =
-        Request.Cookies["refreshToken"];
-
-    if (string.IsNullOrWhiteSpace(refreshToken))
     {
-        return Unauthorized(new ErrorResponse
+        var refreshToken =
+            Request.Cookies["refreshToken"];
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
         {
-            Success = false,
-            ErrorCode = "REFRESH_TOKEN_MISSING",
-            Message = "Refresh token is missing.",
-            Details = []
-        });
-    }
+            return Unauthorized(new ErrorResponse
+            {
+                Success = false,
+                ErrorCode = "REFRESH_TOKEN_MISSING",
+                Message = "Refresh token is missing.",
+                Details = []
+            });
+        }
 
-    var result =
-        await _authService.RefreshTokenAsync(
-            refreshToken
-        );
+        var result =
+            await _authService.RefreshTokenAsync(
+                refreshToken
+            );
 
-    // if (result == null)
-    // {
+        // if (result == null)
+        // {
         // Response.Cookies.Delete("refreshToken");
 
         // return Unauthorized(new ErrorResponse
@@ -120,34 +122,67 @@ public class AuthController : ControllerBase
         //     Message = "Invalid or expired refresh token.",
         //     Details = []
         // });
-    // }
+        // }
 
-    // Replace the old cookie with the new refresh token.
-    Response.Cookies.Append(
-        "refreshToken",
-        result.RefreshToken,
-        new CookieOptions
+        // Replace the old cookie with the new refresh token.
+        Response.Cookies.Append(
+            "refreshToken",
+            result.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                // IMPORTANT:
+                // false for local HTTP development.
+                // Change to true when using HTTPS.
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                Path = "/api/auth"
+            }
+        );
+
+        return Ok(new ApiResponse<AuthResponseDto>
         {
-            HttpOnly = true,
-            // IMPORTANT:
-            // false for local HTTP development.
-            // Change to true when using HTTPS.
-            Secure = false,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddDays(7),
-            Path = "/api/auth"
-        }
-    );
+            Success = true,
+            Message = "Token refreshed successfully.",
+            Data = new AuthResponseDto
+            {
+                UserId = result.UserId,
+                AccessToken = result.AccessToken
+            }
+        });
 
-    return Ok(new ApiResponse<AuthResponseDto>
+
+    }
+
+    [HttpPost("logout")]
+    [ProducesResponseType(
+        typeof(ApiResponse<object>),
+        StatusCodes.Status200OK)]
+    public async Task<IActionResult> Logout()
     {
-        Success = true,
-        Message = "Token refreshed successfully.",
-        Data = new AuthResponseDto
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        if (!string.IsNullOrWhiteSpace(refreshToken))
         {
-            UserId = result.UserId,
-            AccessToken = result.AccessToken
+            await _authService.LogoutAsync(refreshToken);
         }
-    });
-}
+
+        Response.Cookies.Delete(
+            "refreshToken",
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Path = "/api/auth"
+            }
+        );
+
+        return Ok(new ApiResponse<object>
+        {
+            Success = true,
+            Message = "Logged out successfully"
+        });
+    }
 }

@@ -23,15 +23,10 @@ interface BasicProfileInfo {
 
 interface AppState {
   app_loading: boolean;
-
   userInfo: UserInfo | null;
-
   accessToken: string | null;
-
   authInitialized: boolean;
-
   appMode: unknown | null;
-
   basicProfileInfo: BasicProfileInfo | null;
 }
 
@@ -68,15 +63,15 @@ const appSlice = createSlice({
         state.authInitialized = action.payload;
     },
 
-    setAccessToken: (state, action: PayloadAction<string>) => {
+    setAccessToken: (state, action: PayloadAction<string | null>) => {
       state.accessToken = action.payload;
     },
 
     setUserInfo: (state, action: PayloadAction<Partial<UserInfo>>) => {
-      state.userInfo = action.payload;
+      state.userInfo = {...action.payload, ...state.userInfo};
     },
     storeBasicProfileInfo: (state, action: PayloadAction<BasicProfileInfo>) => {
-      state.basicProfileInfo = action.payload;
+      state.basicProfileInfo = {...action.payload};
     },
     logOut: (state) => {
       state.userInfo = null;
@@ -86,12 +81,13 @@ const appSlice = createSlice({
       state.appMode = null;
 
       state.basicProfileInfo = null;
+      state.authInitialized = true;
     },
     storeAppMode: (state, action: PayloadAction<unknown>) => {
       state.appMode = action.payload;
     },
     setBasicProfileInfo: (state, action: PayloadAction<BasicProfileInfo>) => {
-      state.basicProfileInfo = action.payload;
+      state.basicProfileInfo = {...action.payload};
     },
     setProfileInfo: (
       state,
@@ -127,5 +123,14 @@ export const selectUserInfo = (state: RootState): UserInfo | null =>
 export const selectAccessToken =
   (state: RootState) =>
     state.app.accessToken;
-export default appSlice.reducer;
+
+export const selectIsAuthenticated = (
+  state: RootState
+): boolean => Boolean(state.app.accessToken);
+
+export const selectAuthInitialized = (
+  state: RootState
+): boolean => state.app.authInitialized;
 // export const appMode = (state: RootState): unknown | null => state.app.appMode;
+
+export default appSlice.reducer;

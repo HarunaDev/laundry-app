@@ -152,4 +152,20 @@ public class AuthService
             RefreshToken = token.Token
         };
     }
+
+    public async Task LogoutAsync(string refreshToken)
+    {
+        var token = await _context.RefreshTokens
+            .FirstOrDefaultAsync(
+                r => r.Token == refreshToken);
+
+        if (token is null)
+        {
+            return;
+        }
+
+        token.IsRevoked = true;
+
+        await _context.SaveChangesAsync();
+    }
 }
