@@ -8,6 +8,7 @@ import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import { Login } from './pages/auth';
 import Home from "./pages/home/Home";
+import Orders from './pages/orders/Orders';
 
 const router = createBrowserRouter([
   {
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/orders",
-        element: <div>Quest Content</div>,
+        element: <Orders />,
       },
     ],
   },
