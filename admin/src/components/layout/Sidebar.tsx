@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
 
   {
     label: "Customers",
-    path: "/customers",
+    path: "/clients",
     icon: <Users size={17} />,
   },
 

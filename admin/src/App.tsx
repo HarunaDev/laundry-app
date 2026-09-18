@@ -9,6 +9,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import { Login } from './pages/auth';
 import Home from "./pages/home/Home";
 import Orders from './pages/orders/Orders';
+import Client from './pages/client/Client';
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <Orders />,
+      },
+      {
+        path: "clients",
+        element: <Client />,
       },
     ],
   },
