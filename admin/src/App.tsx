@@ -11,6 +11,7 @@ import Home from "./pages/home/Home";
 import Orders from './pages/orders/Orders';
 import Client from './pages/client/Client';
 import Locations from './pages/locations/Location';
+import Services from './pages/services/Services';
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: "locations",
         element: <Locations />,
+      },
+      {
+        path: "services",
+        element: <Services />,
       },
     ],
   },
