@@ -29,7 +29,10 @@ public class UserService
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                Email = u.Email
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber,
+                TotalOrders = u.LaundryOrders.Count(),
+                Status = u.Status.ToString()
             });
 
         // if (!users.Any())
@@ -55,7 +58,10 @@ public class UserService
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                Email = u.Email
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber,
+                TotalOrders = u.LaundryOrders.Count(),
+                Status = u.Status.ToString()
             })
             .FirstOrDefaultAsync();
 
@@ -76,7 +82,10 @@ public class UserService
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                Email = u.Email
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber,
+                TotalOrders = u.LaundryOrders.Count(),
+                Status = u.Status.ToString()
             })
             .FirstOrDefaultAsync();
         if (user is null)
@@ -120,6 +129,10 @@ public class UserService
 
         user.UserName = dto.UserName;
         user.Email = dto.Email;
+         user.PhoneNumber = dto.PhoneNumber;
+
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy = currentUserId;
 
         await _context.SaveChangesAsync();
 
@@ -127,7 +140,71 @@ public class UserService
         {
             Id = user.Id,
             UserName = user.UserName,
-            Email = user.Email
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            // bug to count users orders as i will need to include the user id field when the laundry order is created
+            TotalOrders = await _context.LaundryOrders
+                .CountAsync(o => o.UserId == user.Id),
+            Status = user.Status.ToString()
+        };
+    }
+
+    // Update client status
+    // Only SuperAdmin can change client status.
+    public async Task<UserResponseDto> UpdateUserStatusAsync(
+        string id,
+        UpdateUserStatusDto dto,
+        ClaimsPrincipal currentUser)
+    {
+        var currentRole =
+            currentUser.FindFirstValue(
+                ClaimTypes.Role);
+
+        if (currentRole != UserRole.SuperAdmin.ToString())
+        {
+            throw new UnauthorizedException(
+                "Only SuperAdmin can update user status.");
+        }
+
+        if (!Enum.TryParse<UserStatus>(
+                dto.Status,
+                true,
+                out var status))
+        {
+            throw new BadRequestException(
+                "Status must be either Active or Inactive.");
+        }
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u =>
+                u.Id == id &&
+                u.Role == UserRole.Client &&
+                !u.IsDeleted);
+
+        if (user is null)
+        {
+            throw new NotFoundException(
+                "User not found.");
+        }
+
+        user.Status = status;
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy =
+            currentUser.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+        await _context.SaveChangesAsync();
+
+        return new UserResponseDto
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            // bug with (o.ClientId)
+            TotalOrders = await _context.LaundryOrders
+                .CountAsync(o => o.UserId == user.Id),
+            Status = user.Status.ToString()
         };
     }
 

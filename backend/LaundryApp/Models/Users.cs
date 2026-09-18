@@ -4,6 +4,12 @@ namespace LaundryApp.Models;
 
 public enum UserRole { Client, Admin, SuperAdmin }
 
+public enum UserStatus
+{
+    Active,
+    Inactive
+}
+
 public class User
 {
     public string Id { get; set; } = IdGenerator.GenerateId();
@@ -12,7 +18,9 @@ public class User
     public required string PasswordHash { get; set; }
     public bool EmailVerified { get; set; }
     public UserRole Role { get; set; } = UserRole.Client;
-
+    public string PhoneNumber { get; set; } = "";
+    // public int TotalOrders { get; set; } = 0;
+    public UserStatus Status { get; set; } = UserStatus.Active;
     public bool IsDeleted { get; set; } = false;
 
     public DateTime? DeletedAt { get; set; }
