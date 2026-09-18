@@ -10,6 +10,7 @@ import { Login } from './pages/auth';
 import Home from "./pages/home/Home";
 import Orders from './pages/orders/Orders';
 import Client from './pages/client/Client';
+import Locations from './pages/locations/Location';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "clients",
         element: <Client />,
+      },
+      {
+        path: "locations",
+        element: <Locations />,
       },
     ],
   },
