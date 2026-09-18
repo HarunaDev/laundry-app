@@ -3,9 +3,12 @@ namespace LaundryApp.DTO.User;
 
 public class UserDto
 {
-    public string Id { get; set; }
+    public string Id { get; set; } = "";
     public string UserName { get; set; } = "";
     public string Email { get; set; } = "";
+    public string PhoneNumber { get; set; } = "";
+    public int TotalOrders { get; set; }
+    public string Status { get; set; } = "Active";
 }
 
 public class UserRequestDto
@@ -19,6 +22,9 @@ public class UserResponseDto
     public string Id { get; set; } = "";
     public string UserName { get; set; } = "";
     public string Email { get; set; } = "";
+    public string PhoneNumber { get; set; } = "";
+    public int TotalOrders { get; set; }
+    public string Status { get; set; } = "Active";
 }
 
 public class UpdateUserDto
@@ -30,4 +36,14 @@ public class UpdateUserDto
     [Required]
     [EmailAddress]
     public string Email { get; set; } = "";
+    public string PhoneNumber { get; set; } = "";
+
+    // [Required]-
+    // public string Status { get; set; } = "Active";
+}
+
+public class UpdateUserStatusDto
+{
+    [Required]
+    public string Status { get; set; } = "Active";
 }
