@@ -12,6 +12,7 @@ import Orders from './pages/orders/Orders';
 import Client from './pages/client/Client';
 import Locations from './pages/locations/Location';
 import Services from './pages/services/Services';
+import Items from './pages/items/Items';
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "services",
         element: <Services />,
+      },
+      {
+        path: "items",
+        element: <Items />,
       },
     ],
   },
