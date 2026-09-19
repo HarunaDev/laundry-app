@@ -13,6 +13,7 @@ import Client from './pages/client/Client';
 import Locations from './pages/locations/Location';
 import Services from './pages/services/Services';
 import Items from './pages/items/Items';
+import DeliveryMethods from './pages/delivery/DeliveryMethod';
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
       {
         path: "items",
         element: <Items />,
+      },
+      {
+        path: "delivery",
+        element: <DeliveryMethods />,
       },
     ],
   },
