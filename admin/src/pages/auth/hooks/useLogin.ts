@@ -83,6 +83,9 @@
 
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import {
+  useLazyGetUserQuery,
+} from "../../../redux/slices/userApiSlice";
 
 import type {
   FetchBaseQueryError,
@@ -94,7 +97,8 @@ import {
 } from "../../../redux/slices/authApiSlice";
 
 import {
-    setCredentials
+    setCredentials,
+    setUserInfo,
 } from "../../../redux/appSlice";
 
 interface BackendError {
@@ -127,6 +131,13 @@ export const useLogin = () => {
     },
   ] = useLoginMutation();
 
+  const [
+    getUser,
+    {
+      isFetching: isFetchingUser,
+    },
+  ] = useLazyGetUserQuery();
+
   const login = async (
     credentials: LoginBody
   ) => {
@@ -142,10 +153,33 @@ export const useLogin = () => {
 
     dispatch(
       setCredentials({
-        user: {
-            userId
-        },
+        userId,
         accessToken
+      })
+    );
+
+    /*
+     * Retrieve the actual authenticated user's
+     * profile from the backend.
+     */
+    const userResponse =
+      await getUser().unwrap();
+
+    const currentUser =
+      userResponse.data;
+
+    /*
+     * Store the backend user profile in Redux.
+     */
+    dispatch(
+      setUserInfo({
+        userId: currentUser.id,
+        userName: currentUser.userName,
+        email: currentUser.email,
+        phoneNumber: currentUser.phoneNumber,
+        // totalOrders: currentUser.totalOrders,
+        // status: currentUser.status,
+        role: currentUser.role,
       })
     );
 
@@ -214,7 +248,7 @@ export const useLogin = () => {
 
   return {
     login,
-    isLoading,
+    isLoading: isLoading || isFetchingUser,
     isError,
     isSuccess,
     error,
