@@ -1,12 +1,42 @@
 import type { JSX } from "react";
+import { useSelector } from "react-redux";
 
 import {
   Bell,
   Menu,
   Search,
 } from "lucide-react";
+import { selectUserInfo } from "../../redux/appSlice";
+import type {RootState} from "../../redux/store"
+
+const getInitials = (
+  userName: string
+): string => {
+  const names = userName.trim().split(/\s+/);
+
+  if (names.length === 0) {
+    return "U";
+  }
+
+  if (names.length === 1) {
+    return names[0].charAt(0).toUpperCase();
+  }
+
+  return (
+    names[0].charAt(0) +
+    names[names.length - 1].charAt(0)
+  ).toUpperCase();
+};
 
 const TopBar = (): JSX.Element => {
+
+  const userInfo = useSelector(
+    (state: RootState) => selectUserInfo(state)
+  );
+
+  const userName = userInfo?.userName ?? "User";
+  const initials = getInitials(userName);
+
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
       <button
@@ -47,7 +77,7 @@ const TopBar = (): JSX.Element => {
         </button>
 
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-sm font-medium">
-          J
+          {initials}
         </div>
       </div>
     </header>

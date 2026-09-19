@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -16,9 +16,9 @@ import {
 import type { JSX } from "react";
 import type { NavItem } from "../../types/navigation";
 
-import { logOut } from "../../redux/appSlice";
+import { logOut, selectUserInfo } from "../../redux/appSlice";
 import { generalApiSlice } from "../../redux/apiSlice";
-import type { AppDispatch } from "../../redux/store";
+import type { AppDispatch, RootState } from "../../redux/store";
 
 const navItems: NavItem[] = [
   {
@@ -82,6 +82,41 @@ const navItems: NavItem[] = [
   },
 ];
 
+const getInitials = (
+  userName: string
+): string => {
+  const names = userName.trim().split(/\s+/);
+
+  if (names.length === 0) {
+    return "U";
+  }
+
+  if (names.length === 1) {
+    return names[0].charAt(0).toUpperCase();
+  }
+
+  return (
+    names[0].charAt(0) +
+    names[names.length - 1].charAt(0)
+  ).toUpperCase();
+};
+
+const formatRole = (role: string): string => {
+  switch (role) {
+    case "SuperAdmin":
+      return "Super Admin";
+
+    case "Admin":
+      return "Admin";
+
+    case "Client":
+      return "Client";
+
+    default:
+      return role;
+  }
+};
+
 const Sidebar = (): JSX.Element => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -89,6 +124,14 @@ const Sidebar = (): JSX.Element => {
 
   // const accessToken = useSelector(selectAccessToken);
   // const userInfo = useSelector(selectUserInfo);
+
+  const userInfo = useSelector(
+    (state: RootState) => selectUserInfo(state)
+  );
+
+  const userName = userInfo?.userName ?? "User";
+  const userRole = userInfo?.role ?? "Client";
+  const initials = getInitials(userName);
 
   const handleLogout = async () => {
     try {
@@ -146,13 +189,13 @@ const Sidebar = (): JSX.Element => {
       <div className="border-t border-white/10 p-4">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-700">
-            J
+            {initials}
           </div>
 
           <div>
-            <p className="text-sm font-medium">John Admin</p>
+            <p className="text-sm font-medium">{userName}</p>
 
-            <p className="text-xs text-gray-400">Super Admin</p>
+            <p className="text-xs text-gray-400">{formatRole(userRole)}</p>
           </div>
         </div>
 
