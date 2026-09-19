@@ -32,7 +32,8 @@ public class UserService
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
                 TotalOrders = u.LaundryOrders.Count(),
-                Status = u.Status.ToString()
+                Status = u.Status.ToString(),
+                Role = u.Role.ToString()
             });
 
         // if (!users.Any())
@@ -61,7 +62,8 @@ public class UserService
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
                 TotalOrders = u.LaundryOrders.Count(),
-                Status = u.Status.ToString()
+                Status = u.Status.ToString(),
+                Role = u.Role.ToString()
             })
             .FirstOrDefaultAsync();
 
@@ -85,7 +87,8 @@ public class UserService
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
                 TotalOrders = u.LaundryOrders.Count(),
-                Status = u.Status.ToString()
+                Status = u.Status.ToString(),
+                Role = u.Role.ToString()
             })
             .FirstOrDefaultAsync();
         if (user is null)

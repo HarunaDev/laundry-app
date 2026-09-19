@@ -9,6 +9,7 @@ public class UserDto
     public string PhoneNumber { get; set; } = "";
     public int TotalOrders { get; set; }
     public string Status { get; set; } = "Active";
+    public string Role { get; set; } = "Client";
 }
 
 public class UserRequestDto
@@ -25,6 +26,7 @@ public class UserResponseDto
     public string PhoneNumber { get; set; } = "";
     public int TotalOrders { get; set; }
     public string Status { get; set; } = "Active";
+    public string Role { get; set; } = "Client";
 }
 
 public class UpdateUserDto
