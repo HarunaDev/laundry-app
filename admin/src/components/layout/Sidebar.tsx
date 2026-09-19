@@ -64,8 +64,8 @@ const navItems: NavItem[] = [
   },
 
   {
-    label: "Users",
-    path: "/users",
+    label: "Admins",
+    path: "/admin",
     icon: <UserCog size={17} />,
   },
 
