@@ -97,6 +97,6 @@ export const generalApiSlice = createApi({
   reducerPath: "api",
 
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["LaundryLocations", "LaundryServices", "LaundryItems", "DeliveryMethods", "Admin"],
+  tagTypes: ["LaundryLocations", "LaundryServices", "LaundryItems", "DeliveryMethods", "Admin", "User"],
   endpoints: () => ({}),
 });

@@ -2,14 +2,15 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
 
-interface UserInfo {
+export type UserRole = "Client" | "Admin" | "SuperAdmin";
+export type UserStatus = "Active" | "Inactive";
+export interface UserInfo {
   userId?: string;
-  firstName?: string;
-  lastName?: string;
+  userName: string;
   email?: string;
   phoneNumber?: string;
   profilePictureFileUri?: string;
-  role?: string;
+  role?: UserRole;
 }
 
 // interface DropdownOption {
@@ -50,13 +51,23 @@ const appSlice = createSlice({
     setCredentials: (
       state,
       action: PayloadAction<{
-        user: UserInfo;
+        userId: string;
         accessToken: string;
       }>
     ) => {
-      state.userInfo = action.payload.user;
+      // state.userInfo = action.payload.user;
 
       state.accessToken = action.payload.accessToken;
+
+      state.userInfo = {
+        userId: action.payload.userId,
+        userName: "",
+        email: "",
+        phoneNumber: "",
+        // totalOrders: 0,
+        // status: "Active",
+        role: "Client",
+      };
     },
 
     setAuthInitialized: ( state, action: PayloadAction<boolean>) => {
@@ -67,8 +78,8 @@ const appSlice = createSlice({
       state.accessToken = action.payload;
     },
 
-    setUserInfo: (state, action: PayloadAction<Partial<UserInfo>>) => {
-      state.userInfo = {...action.payload, ...state.userInfo};
+    setUserInfo: (state, action: PayloadAction<UserInfo>) => {
+      state.userInfo = action.payload;
     },
     storeBasicProfileInfo: (state, action: PayloadAction<BasicProfileInfo>) => {
       state.basicProfileInfo = {...action.payload};
