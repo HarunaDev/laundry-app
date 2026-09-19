@@ -59,7 +59,7 @@ const navItems: NavItem[] = [
 
   {
     label: "Delivery Methods",
-    path: "/delivery-methods",
+    path: "/delivery",
     icon: <Truck size={17} />,
   },
 
