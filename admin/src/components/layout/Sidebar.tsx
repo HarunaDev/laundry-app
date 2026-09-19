@@ -47,7 +47,7 @@ const navItems: NavItem[] = [
 
   {
     label: "Laundry Items",
-    path: "/laundry-items",
+    path: "/items",
     icon: <Shirt size={17} />,
   },
 
