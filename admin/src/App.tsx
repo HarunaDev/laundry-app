@@ -14,6 +14,7 @@ import Locations from './pages/locations/Location';
 import Services from './pages/services/Services';
 import Items from './pages/items/Items';
 import DeliveryMethods from './pages/delivery/DeliveryMethod';
+import Admins from './pages/admin/Admins';
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
       {
         path: "delivery",
         element: <DeliveryMethods />,
+      },
+      {
+        path: "admin",
+        element: <Admins />,
       },
     ],
   },
