@@ -9,7 +9,7 @@ namespace LaundryApp.Controllers;
 [ApiController]
 [ProducesResponseType(typeof(ApiResponse<AdminResponseDto>), StatusCodes.Status200OK)]
 [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-[Authorize(Roles = "SuperAdmin")]
+[Authorize]
 [Route("api/admin")]
 public class AdminController : ControllerBase
 {
@@ -22,6 +22,7 @@ public class AdminController : ControllerBase
 
     // create Admin
     [HttpPost("create")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> CreateAdmin(CreateAdminDto dto)
     {
         var result = await _adminService.CreateAdminAsync(dto, User);
@@ -72,6 +73,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> DeleteAdmin(string id)
     {
         await _adminService.DeleteAdminAsync(id, User);
