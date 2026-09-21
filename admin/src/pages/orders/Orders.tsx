@@ -43,6 +43,9 @@ const Orders = (): JSX.Element => {
   const {
     form,
 
+    selectedServiceId,
+    selectedItems,
+
     users,
     services,
     deliveryMethods,
@@ -195,8 +198,14 @@ const Orders = (): JSX.Element => {
         deliveryMethods={deliveryMethods}
         locations={locations}
         laundryItems={laundryItems}
+        selectedServiceId={
+          selectedServiceId
+        }
+        selectedItems={
+          selectedItems
+        }
         userId={form.userId}
-        serviceId={form.serviceId}
+        // serviceId={form.serviceId}
         deliveryMethodId={form.deliveryMethodId}
         laundryLocationId={form.laundryLocationId}
         pickupAddress={form.pickupAddress}

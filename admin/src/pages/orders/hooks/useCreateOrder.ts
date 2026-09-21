@@ -21,9 +21,11 @@ import {
   requiresPickupAddress,
 } from "./orderAddressRules";
 
+const CREATE_ORDER_STORAGE_KEY = "laundryapp:create-order";
+
 interface CreateOrderFormState {
   userId: string;
-  serviceId: number;
+  //   serviceId: number;
   deliveryMethodId: number;
   laundryLocationId: number;
   pickupAddress: string;
@@ -31,9 +33,18 @@ interface CreateOrderFormState {
   items: OrderItemRequest[];
 }
 
+interface StoredOrderItem {
+  serviceId: number;
+  serviceName: string;
+  laundryItemId: number;
+  itemName: string;
+  price: number;
+  quantity: number;
+}
+
 const initialFormState: CreateOrderFormState = {
   userId: "",
-  serviceId: 0,
+  //   serviceId: 0,
   deliveryMethodId: 0,
   laundryLocationId: 0,
   pickupAddress: "",
@@ -41,8 +52,43 @@ const initialFormState: CreateOrderFormState = {
   items: [],
 };
 
+const readStoredItems = (): StoredOrderItem[] => {
+  try {
+    const storedItems = localStorage.getItem(CREATE_ORDER_STORAGE_KEY);
+
+    if (!storedItems) {
+      return [];
+    }
+
+    const parsedItems: unknown = JSON.parse(storedItems);
+
+    if (!Array.isArray(parsedItems)) {
+      return [];
+    }
+
+    return parsedItems as StoredOrderItem[];
+  } catch {
+    return [];
+  }
+};
+
+const writeStoredItems = (items: StoredOrderItem[]): void => {
+  localStorage.setItem(CREATE_ORDER_STORAGE_KEY, JSON.stringify(items));
+};
+
+const clearStoredItems = (): void => {
+  localStorage.removeItem(CREATE_ORDER_STORAGE_KEY);
+};
+
+// interface UseCreateOrderProps {
+//   isOpen: boolean;
+// }
+
 export const useCreateOrder = () => {
   const [form, setForm] = useState<CreateOrderFormState>(initialFormState);
+
+  const [selectedServiceId, setSelectedServiceId] =
+    useState(0);
 
   const [createOrder, createOrderState] = useCreateOrderMutation();
 
@@ -76,9 +122,12 @@ export const useCreateOrder = () => {
    * Laundry items for the selected service
    */
   const { data: itemsResponse, isLoading: isLoadingItems } =
-    useGetLaundryItemsQuery(form.serviceId, {
-      skip: form.serviceId === 0,
-    });
+    useGetLaundryItemsQuery(
+        selectedServiceId,
+    {
+      skip: selectedServiceId === 0,
+    }
+    );
 
   /*
    * API data
@@ -102,6 +151,19 @@ export const useCreateOrder = () => {
     form.deliveryMethodId
   );
 
+//   clear temporary storage
+//   useEffect(() => {
+//     if (!isOpen) {
+//       return;
+//     }
+
+//     clearStoredItems();
+
+//     setForm(initialFormState);
+
+//     setSelectedServiceId(0);
+//   }, [isOpen]);
+
   /*
    * Form setters
    */
@@ -113,14 +175,15 @@ export const useCreateOrder = () => {
   };
 
   const setServiceId = (serviceId: number) => {
-    setForm((current) => ({
-      ...current,
-      serviceId,
+    // setForm((current) => ({
+    //   ...current,
+    //   serviceId,
 
-      // Changing service removes
-      // previously selected items.
-      items: [],
-    }));
+    //   // Changing service removes
+    //   // previously selected items.
+    //   items: [],
+    // }));
+    setSelectedServiceId(serviceId)
   };
 
   const setDeliveryMethodId = (deliveryMethodId: number) => {
@@ -166,19 +229,63 @@ export const useCreateOrder = () => {
   /*
    * Items
    */
-  const addItem = (item: OrderItemRequest) => {
+  const addItem = (laundryItemId: number) => {
+    const selectedItem = laundryItems.find(
+        (item) => item.id === laundryItemId
+      );
+  
+      const selectedService = services.find(
+        (service) =>
+          service.id === selectedServiceId
+      );
+  
+      if (
+        !selectedItem ||
+        !selectedService ||
+        selectedServiceId === 0
+      ) {
+        return;
+      }
+
     setForm((current) => {
       const alreadyExists = current.items.some(
-        (existingItem) => existingItem.laundryItemId === item.laundryItemId
+        (item) => item.laundryItemId === laundryItemId
       );
 
       if (alreadyExists) {
         return current;
       }
 
+      const newItem: OrderItemRequest = {
+        laundryItemId,
+        quantity: 1,
+      };
+
+      const updatedItems = [
+        ...current.items,
+        newItem,
+      ];
+
+      const storedItems =
+        readStoredItems();
+
+      const storedItem: StoredOrderItem = {
+        serviceId: selectedService.id,
+        serviceName: selectedService.name,
+        laundryItemId: selectedItem.id,
+        itemName: selectedItem.name,
+        price: selectedItem.price,
+        quantity: 1,
+      };
+
+      writeStoredItems([
+        ...storedItems,
+        storedItem,
+      ]);
+
       return {
         ...current,
-        items: [...current.items, item],
+        items: updatedItems,
       };
     });
   };
@@ -191,9 +298,26 @@ export const useCreateOrder = () => {
         (item) => item.laundryItemId !== laundryItemId
       ),
     }));
+
+    const storedItems =
+      readStoredItems();
+
+    const updatedStoredItems =
+      storedItems.filter(
+        (item) =>
+          item.laundryItemId !==
+          laundryItemId
+      );
+
+    writeStoredItems(
+      updatedStoredItems
+    );
   };
 
   const updateQuantity = (laundryItemId: number, quantity: number) => {
+    const safeQuantity =
+      Math.max(1, quantity);
+
     setForm((current) => ({
       ...current,
 
@@ -201,11 +325,30 @@ export const useCreateOrder = () => {
         item.laundryItemId === laundryItemId
           ? {
               ...item,
-              quantity: Math.max(1, quantity),
+              quantity: safeQuantity,
             }
           : item
       ),
     }));
+
+    const storedItems =
+      readStoredItems();
+
+    const updatedStoredItems =
+      storedItems.map((item) =>
+        item.laundryItemId ===
+        laundryItemId
+          ? {
+              ...item,
+              quantity:
+                safeQuantity,
+            }
+          : item
+      );
+
+    writeStoredItems(
+      updatedStoredItems
+    );
   };
 
   /*
@@ -251,15 +394,23 @@ export const useCreateOrder = () => {
    * Reset form
    */
   const reset = () => {
+    clearStoredItems();
+
     setForm(initialFormState);
+
+    setSelectedServiceId(0);
   };
+
+  const selectedItems =
+    readStoredItems();
 
   return {
     /*
      * Form
      */
     form,
-
+    selectedServiceId,
+    selectedItems,
     /*
      * API data
      */
