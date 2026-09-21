@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import { useState, type JSX } from "react";
 
 import PageHeader from "../../components/ui/PageHeader";
 
@@ -7,11 +7,14 @@ import Pagination from "../../components/ui/Pagination";
 import OrdersFilters from "./components/ui/OrdersFilters";
 
 import OrdersTable from "./components/layout/OrdersTable";
+import CreateOrderModal from "./components/ui/CreateOrderModal";
 
 import { useOrders } from "./hooks/useOrders";
+import { useCreateOrder } from "./hooks/useCreateOrder";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const Orders = (): JSX.Element => {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const {
     orders,
 
@@ -31,7 +34,84 @@ const Orders = (): JSX.Element => {
     goToPreviousPage,
 
     hasNextPage,
+    refetch,
   } = useOrders();
+
+  /*
+   * Create order
+   */
+  const {
+    form,
+
+    users,
+    services,
+    deliveryMethods,
+    locations,
+    laundryItems,
+
+    pickupAddressRequired,
+    deliveryAddressRequired,
+
+    isLoading: isCreateOrderDataLoading,
+
+    isCreating,
+
+    setUserId,
+    setServiceId,
+    setDeliveryMethodId,
+    setLaundryLocationId,
+    setPickupAddress,
+    setDeliveryAddress,
+
+    addItem,
+    removeItem,
+    updateQuantity,
+
+    submit,
+    reset,
+  } = useCreateOrder();
+
+  const handleCreateOrder = () => {
+    // Open create-order modal here.
+    reset();
+    setIsCreateModalOpen(true);
+  };
+
+  /*
+   * Close modal
+   */
+  const handleCloseCreateModal = () => {
+    if (isCreating) {
+      return;
+    }
+
+    setIsCreateModalOpen(false);
+    reset();
+  };
+
+  /*
+   * Submit order
+   */
+  const handleSubmitCreateOrder = async () => {
+    try {
+      await submit();
+
+      setIsCreateModalOpen(false);
+      reset();
+
+      await refetch();
+    } catch (error) {
+      /*
+       * The modal remains open when
+       * the API request fails so the
+       * user can see/correct the form.
+       *
+       * RTK Query's error state is
+       * available through useCreateOrder.
+       */
+      console.error("Failed to create order:", error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -60,9 +140,7 @@ const Orders = (): JSX.Element => {
         status={status}
         onSearchChange={setSearch}
         onStatusChange={setStatus}
-        onCreateOrder={() => {
-          console.log("Create new order");
-        }}
+        onCreateOrder={handleCreateOrder}
       />
 
       {/* Error */}
@@ -105,6 +183,39 @@ const Orders = (): JSX.Element => {
           onNext={goToNextPage}
         />
       </div>
+
+      {/* Create Order Modal */}
+
+      <CreateOrderModal
+        isOpen={isCreateModalOpen}
+        isLoading={isCreateOrderDataLoading}
+        isSubmitting={isCreating}
+        users={users}
+        services={services}
+        deliveryMethods={deliveryMethods}
+        locations={locations}
+        laundryItems={laundryItems}
+        userId={form.userId}
+        serviceId={form.serviceId}
+        deliveryMethodId={form.deliveryMethodId}
+        laundryLocationId={form.laundryLocationId}
+        pickupAddress={form.pickupAddress}
+        deliveryAddress={form.deliveryAddress}
+        items={form.items}
+        pickupAddressRequired={pickupAddressRequired}
+        deliveryAddressRequired={deliveryAddressRequired}
+        onClose={handleCloseCreateModal}
+        onSubmit={handleSubmitCreateOrder}
+        onUserChange={setUserId}
+        onServiceChange={setServiceId}
+        onDeliveryMethodChange={setDeliveryMethodId}
+        onLocationChange={setLaundryLocationId}
+        onPickupAddressChange={setPickupAddress}
+        onDeliveryAddressChange={setDeliveryAddress}
+        onAddItem={addItem}
+        onRemoveItem={removeItem}
+        onQuantityChange={updateQuantity}
+      />
     </div>
   );
 };
