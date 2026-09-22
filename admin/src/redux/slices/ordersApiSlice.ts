@@ -33,11 +33,7 @@ export interface ConfirmOrderRequest {
   // a request body for completing an order.
 // }
 
-export interface LaundryOrderResponse {
-  success: boolean;
-  message: string;
-  data: LaundryOrderDetails;
-}
+export type LaundryOrderResponse = LaundryOrderDetails;
 
 export interface DeleteOrderResponse {
   success: boolean;
@@ -61,7 +57,17 @@ const orderApiSlice = generalApiSlice.injectEndpoints({
         url: `/laundry-orders/${orderId}`,
         method: "GET",
       }),
-      providesTags: ["LaundryOrders"],
+      providesTags: (
+        _result,
+        _error,
+        orderId
+      ) => [
+        "LaundryOrders",
+        {
+          type: "LaundryOrders",
+          id: orderId,
+        },
+      ],
     }),
 
     createOrder: builder.mutation<LaundryOrderResponse, CreateOrderRequest>({

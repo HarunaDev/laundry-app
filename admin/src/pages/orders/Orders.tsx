@@ -8,12 +8,14 @@ import OrdersFilters from "./components/ui/OrdersFilters";
 
 import OrdersTable from "./components/layout/OrdersTable";
 import CreateOrderModal from "./components/ui/CreateOrderModal";
-
+import type { LaundryOrder } from "../../types/orders";
 import { useOrders } from "./hooks/useOrders";
 import { useCreateOrder } from "./hooks/useCreateOrder";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { useNavigate } from "react-router-dom";
 
 const Orders = (): JSX.Element => {
+  const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const {
     orders,
@@ -116,6 +118,12 @@ const Orders = (): JSX.Element => {
     }
   };
 
+  const handleOrderClick = (
+    order: LaundryOrder
+  ): void => {
+    navigate(`/orders/${order.id}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -176,7 +184,7 @@ const Orders = (): JSX.Element => {
           shadow-sm
         "
       >
-        <OrdersTable orders={orders} isLoading={isLoading || isFetching} />
+        <OrdersTable orders={orders} isLoading={isLoading || isFetching} onOrderClick={handleOrderClick}/>
 
         <Pagination
           pageNumber={pageNumber}
@@ -184,6 +192,7 @@ const Orders = (): JSX.Element => {
           isLoading={isFetching}
           onPrevious={goToPreviousPage}
           onNext={goToNextPage}
+          // onClick={() => onOrderClick?.(order)}
         />
       </div>
 
