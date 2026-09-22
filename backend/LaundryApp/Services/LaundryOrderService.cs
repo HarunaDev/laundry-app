@@ -778,7 +778,11 @@ public class LaundryOrderService
 
             CustomerName = order.User.UserName,
 
+            DeliveryMethodId = order.DeliveryMethodId,
+
             DeliveryMethod = order.DeliveryMethod.Name,
+
+            LaundryLocationId = order.LaundryLocationId,
 
             LaundryLocation = order.LaundryLocation?.Name,
 

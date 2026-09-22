@@ -79,7 +79,11 @@ public class LaundryOrderResponseDto
 
     public string CustomerName { get; set; } = "";
 
+    public int DeliveryMethodId { get; set; }
+
     public string DeliveryMethod { get; set; } = "";
+
+    public int? LaundryLocationId { get; set; }
 
     public string? LaundryLocation { get; set; }
 
