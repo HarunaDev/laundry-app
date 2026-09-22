@@ -15,6 +15,7 @@ import Services from './pages/services/Services';
 import Items from './pages/items/Items';
 import DeliveryMethods from './pages/delivery/DeliveryMethod';
 import Admins from './pages/admin/Admins';
+import OrderDetails from './pages/orders/OrderDetails';
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <Orders />,
+      },
+      {
+        path: "orders/:orderId",
+        element: <OrderDetails />,
       },
       {
         path: "clients",

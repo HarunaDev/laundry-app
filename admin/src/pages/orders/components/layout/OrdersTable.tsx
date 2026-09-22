@@ -57,6 +57,7 @@ const formatDate = (
 const OrdersTable = ({
   orders,
   isLoading,
+  onOrderClick,
 }: OrdersTableProps): JSX.Element => {
 
   const columns: TableColumn<LaundryOrder>[] = [
@@ -66,14 +67,16 @@ const OrdersTable = ({
       header: "Order ID",
 
       render: (order) => (
-        <span
+        <button
           className="
             font-medium
             text-blue-600
           "
+          type="button"
+          onClick={() => onOrderClick?.(order)}
         >
           #ORD-{order.id}
-        </span>
+        </button>
       ),
     },
 
