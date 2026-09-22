@@ -9,7 +9,9 @@ export interface LaundryOrder {
   id: number;
   customerId: string;
   customerName: string;
+  deliveryMethodId: number;
   deliveryMethod: string;
+  laundryLocationId: number | null;
   laundryLocation: string;
   pickupAddress: string | null;
   deliveryAddress: string | null;
@@ -45,7 +47,6 @@ export interface OrdersMeta {
   pageSize: number;
   totalRecords: number;
   totalPages: number;
-  items: unknown[];
 }
 
 export interface FilterOrdersResponse {
