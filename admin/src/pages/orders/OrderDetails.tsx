@@ -18,6 +18,7 @@ import StatusBadge from "../../components/ui/StatusBadge";
 import {
   useCompleteOrderMutation,
   useGetOrderByIdQuery,
+  useConfirmOrderMutation,
 } from "../../redux/slices/ordersApiSlice";
 
 // import type { LaundryOrderDetails } from "../../types/orders";
@@ -211,6 +212,8 @@ const OrderDetails = (): JSX.Element => {
       skip: !orderId || Number.isNaN(numericOrderId),
     });
 
+  const [confirmOrder, { isLoading: isConfirming }] = useConfirmOrderMutation();
+
   const [completeOrder, { isLoading: isCompleting }] =
     useCompleteOrderMutation();
 
@@ -226,7 +229,7 @@ const OrderDetails = (): JSX.Element => {
   };
 
   const handleCloseModal = (): void => {
-    if (isCompleting) {
+    if (isConfirming || isCompleting) {
       return;
     }
 
@@ -239,27 +242,80 @@ const OrderDetails = (): JSX.Element => {
       return;
     }
 
-    if (action === "confirm") {
-      /*
-       * The current confirm API requires:
-       *
-       * deliveryMethodId
-       * laundryLocationId
-       * items
-       *
-       * However, the GET /laundry-orders/{id}
-       * response currently only returns the
-       * delivery method and location names.
-       *
-       * Do not send guessed IDs.
-       *
-       * Once the backend exposes those IDs,
-       * wire useConfirmOrderMutation here.
-       */
+    // if (action === "confirm") {
+    //   /*
+    //    * The current confirm API requires:
+    //    *
+    //    * deliveryMethodId
+    //    * laundryLocationId
+    //    * items
+    //    *
+    //    * However, the GET /laundry-orders/{id}
+    //    * response currently only returns the
+    //    * delivery method and location names.
+    //    *
+    //    * Do not send guessed IDs.
+    //    *
+    //    * Once the backend exposes those IDs,
+    //    * wire useConfirmOrderMutation here.
+    //    */
 
-      console.error(
-        "Order confirmation requires deliveryMethodId and laundryLocationId."
-      );
+    //   //   console.error(
+    //   //     "Order confirmation requires deliveryMethodId and laundryLocationId."
+    //   //   );
+    //   try {
+    //     await confirmOrder({
+    //       orderId: order.id,
+    //       body: {
+    //         deliveryMethodId: order.deliveryMethodId,
+    //         laundryLocationId: order.laundryLocationId ?? undefined,
+    //         pickupAddress: order.pickupAddress ?? undefined,
+    //         deliveryAddress: order.deliveryAddress ?? undefined,
+    //         items: order.items.map((item) => ({
+    //           laundryItemId: item.laundryItemId,
+    //           quantity: item.quantity,
+    //         })),
+    //       },
+    //     }).unwrap();
+
+    //     setIsActionModalOpen(false);
+    //     setAction(null);
+
+    //     await refetch();
+    //   } catch (error) {
+    //     console.error("Failed to confirm order:", error);
+    //   }
+    //   return;
+    // }
+
+    if (action === "confirm") {
+      if (order.laundryLocationId === null) {
+        console.error("Laundry location is required to confirm this order.");
+        return;
+      }
+
+      try {
+        await confirmOrder({
+          orderId: order.id,
+          body: {
+            deliveryMethodId: order.deliveryMethodId,
+            laundryLocationId: order.laundryLocationId,
+            pickupAddress: order.pickupAddress ?? undefined,
+            deliveryAddress: order.deliveryAddress ?? undefined,
+            items: order.items.map((item) => ({
+              laundryItemId: item.laundryItemId,
+              quantity: item.quantity,
+            })),
+          },
+        }).unwrap();
+
+        setIsActionModalOpen(false);
+        setAction(null);
+
+        await refetch();
+      } catch (error) {
+        console.error("Failed to confirm order:", error);
+      }
 
       return;
     }
@@ -1165,7 +1221,7 @@ const OrderDetails = (): JSX.Element => {
         title={modalTitle}
         message={modalMessage}
         confirmText={modalConfirmText}
-        isLoading={isCompleting}
+        isLoading={isConfirming || isCompleting}
         onClose={handleCloseModal}
         onConfirm={handleConfirmAction}
       />
