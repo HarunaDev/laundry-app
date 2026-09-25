@@ -26,7 +26,7 @@ export interface LoginResponse {
 export interface RegisterResponse {
   success: boolean;
   message: string;
-  data: unknown;
+  data: null;
 }
 
 export interface RefreshResponse {

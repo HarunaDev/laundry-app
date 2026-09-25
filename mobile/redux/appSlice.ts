@@ -14,12 +14,14 @@ interface AppState {
   user: AuthUser | null;
   userInfo: UserProfile | null;
   isAuthenticated: boolean;
+  authInitialized: boolean;
 }
 
 const initialState: AppState = {
   user: null,
   userInfo: null,
   isAuthenticated: false,
+  authInitialized: false,
 };
 
 const appSlice = createSlice({
@@ -69,6 +71,10 @@ const appSlice = createSlice({
       }
     },
 
+    setAuthInitialized(state, action: PayloadAction<boolean>) {
+      state.authInitialized = action.payload;
+    },
+
     logOut(state) {
       state.user = null;
       state.userInfo = null;
@@ -77,7 +83,13 @@ const appSlice = createSlice({
   },
 });
 
-export const { setUser, setAccessToken, setUserInfo, updateProfile, logOut } =
-  appSlice.actions;
+export const {
+  setUser,
+  setAccessToken,
+  setUserInfo,
+  updateProfile,
+  setAuthInitialized,
+  logOut,
+} = appSlice.actions;
 
 export default appSlice.reducer;
