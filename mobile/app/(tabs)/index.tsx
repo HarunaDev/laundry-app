@@ -12,9 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useAppSelector } from "@/redux/hooks";
 import { useLogoutMutation } from "@/redux/slices/authApiSlice";
-import {
-  useGetCurrentUserQuery,
-} from "@/redux/slices/userApiSlice";
+import { useGetCurrentUserQuery } from "@/redux/slices/userApiSlice";
 import { useGetLaundryServicesQuery } from "@/redux/slices/serviceApiSlice";
 
 export default function HomeScreen() {
@@ -42,17 +40,12 @@ export default function HomeScreen() {
   const services = servicesResponse?.data ?? [];
 
   const isLoading = isUserLoading || isServicesLoading;
-  const isRefreshing =
-    isUserLoading ||
-    isServicesLoading;
+  const isRefreshing = isUserLoading || isServicesLoading;
 
   const hasError = isUserError || isServicesError;
 
   const handleRefresh = async (): Promise<void> => {
-    await Promise.all([
-      refetchUser(),
-      refetchServices(),
-    ]);
+    await Promise.all([refetchUser(), refetchServices()]);
   };
 
   const handleLogout = async (): Promise<void> => {
@@ -66,22 +59,13 @@ export default function HomeScreen() {
     }
   };
 
-  const displayName =
-    user?.userName?.trim() ||
-    authUser?.userId ||
-    "there";
+  const displayName = user?.userName?.trim() || authUser?.userId || "there";
 
   if (isLoading && !user) {
     return (
-      <SafeAreaView
-        className="flex-1 bg-white"
-        edges={["top"]}
-      >
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator
-            size="large"
-            color="#2563EB"
-          />
+          <ActivityIndicator size="large" color="#2563EB" />
 
           <Text className="mt-4 text-sm text-slate-500">
             Loading your dashboard...
@@ -93,17 +77,10 @@ export default function HomeScreen() {
 
   if (hasError && !user) {
     return (
-      <SafeAreaView
-        className="flex-1 bg-white"
-        edges={["top"]}
-      >
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
         <View className="flex-1 items-center justify-center px-6">
           <View className="h-16 w-16 items-center justify-center rounded-full bg-red-50">
-            <Ionicons
-              name="cloud-offline-outline"
-              size={30}
-              color="#DC2626"
-            />
+            <Ionicons name="cloud-offline-outline" size={30} color="#DC2626" />
           </View>
 
           <Text className="mt-5 text-xl font-bold text-slate-900">
@@ -111,8 +88,8 @@ export default function HomeScreen() {
           </Text>
 
           <Text className="mt-2 text-center text-sm leading-5 text-slate-500">
-            We couldn&apos;t load your dashboard. Please check your
-            connection and try again.
+            We couldn&apos;t load your dashboard. Please check your connection
+            and try again.
           </Text>
 
           <Pressable
@@ -121,9 +98,7 @@ export default function HomeScreen() {
             }}
             className="mt-6 h-12 items-center justify-center rounded-xl bg-blue-600 px-8 active:bg-blue-700"
           >
-            <Text className="font-semibold text-white">
-              Try again
-            </Text>
+            <Text className="font-semibold text-white">Try again</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -131,10 +106,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-slate-50"
-      edges={["top"]}
-    >
+    <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
       <ScrollView
         className="flex-1"
         contentContainerClassName="pb-8"
@@ -153,9 +125,7 @@ export default function HomeScreen() {
         <View className="px-5 pb-5 pt-4">
           <View className="flex-row items-center justify-between">
             <View className="flex-1 pr-4">
-              <Text className="text-sm text-slate-500">
-                Welcome back
-              </Text>
+              <Text className="text-sm text-slate-500">Welcome back</Text>
 
               <Text
                 className="mt-1 text-2xl font-bold text-slate-900"
@@ -173,16 +143,9 @@ export default function HomeScreen() {
               className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm"
             >
               {isLoggingOut ? (
-                <ActivityIndicator
-                  size="small"
-                  color="#2563EB"
-                />
+                <ActivityIndicator size="small" color="#2563EB" />
               ) : (
-                <Ionicons
-                  name="log-out-outline"
-                  size={22}
-                  color="#475569"
-                />
+                <Ionicons name="log-out-outline" size={22} color="#475569" />
               )}
             </Pressable>
           </View>
@@ -204,25 +167,19 @@ export default function HomeScreen() {
                 </Text>
 
                 <Text className="mt-3 text-sm leading-5 text-blue-100">
-                  Let us take care of your laundry while you
-                  focus on what matters.
+                  Let us take care of your laundry while you focus on what
+                  matters.
                 </Text>
               </View>
 
               <View className="h-14 w-14 items-center justify-center rounded-2xl bg-white/15">
-                <Ionicons
-                  name="shirt-outline"
-                  size={30}
-                  color="#FFFFFF"
-                />
+                <Ionicons name="shirt-outline" size={30} color="#FFFFFF" />
               </View>
             </View>
 
             <View className="mt-5 flex-row items-center">
               <View className="mr-3 flex-1 rounded-2xl bg-white/10 p-3">
-                <Text className="text-xs text-blue-100">
-                  Total orders
-                </Text>
+                <Text className="text-xs text-blue-100">Total orders</Text>
 
                 <Text className="mt-1 text-xl font-bold text-white">
                   {user?.totalOrders ?? 0}
@@ -230,9 +187,7 @@ export default function HomeScreen() {
               </View>
 
               <View className="flex-1 rounded-2xl bg-white/10 p-3">
-                <Text className="text-xs text-blue-100">
-                  Account status
-                </Text>
+                <Text className="text-xs text-blue-100">Account status</Text>
 
                 <Text className="mt-1 text-xl font-bold text-white">
                   {user?.status ?? "Active"}
@@ -259,11 +214,7 @@ export default function HomeScreen() {
               className="mr-3 flex-1 rounded-2xl bg-white p-4 shadow-sm active:bg-slate-100"
             >
               <View className="h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
-                <Ionicons
-                  name="add-circle-outline"
-                  size={24}
-                  color="#2563EB"
-                />
+                <Ionicons name="add-circle-outline" size={24} color="#2563EB" />
               </View>
 
               <Text className="mt-3 font-semibold text-slate-900">
@@ -282,11 +233,7 @@ export default function HomeScreen() {
               className="flex-1 rounded-2xl bg-white p-4 shadow-sm active:bg-slate-100"
             >
               <View className="h-11 w-11 items-center justify-center rounded-xl bg-purple-50">
-                <Ionicons
-                  name="receipt-outline"
-                  size={24}
-                  color="#7C3AED"
-                />
+                <Ionicons name="receipt-outline" size={24} color="#7C3AED" />
               </View>
 
               <Text className="mt-3 font-semibold text-slate-900">
@@ -323,11 +270,7 @@ export default function HomeScreen() {
           {services.length === 0 ? (
             <View className="items-center rounded-2xl bg-white px-5 py-8">
               <View className="h-14 w-14 items-center justify-center rounded-full bg-slate-100">
-                <Ionicons
-                  name="shirt-outline"
-                  size={26}
-                  color="#64748B"
-                />
+                <Ionicons name="shirt-outline" size={26} color="#64748B" />
               </View>
 
               <Text className="mt-4 font-semibold text-slate-900">
