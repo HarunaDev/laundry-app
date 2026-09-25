@@ -1,5 +1,5 @@
 import { baseApi } from "../baseApiSlice";
-import { logOut, setUser, setUserInfo } from "../appSlice";
+import { logOut, setUser} from "../appSlice";
 
 export interface LoginRequest {
   email: string;
@@ -117,28 +117,7 @@ export const authApiSlice = baseApi.injectEndpoints({
       },
 
       invalidatesTags: ["Auth"],
-    }),
-
-    getCurrentUser: builder.query<UserProfileResponse, void>({
-      query: () => ({
-        url: "/users/me",
-        method: "GET",
-      }),
-
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-
-          if (data.data) {
-            dispatch(setUserInfo(data.data));
-          }
-        } catch {
-          // The base query handles authentication failures.
-        }
-      },
-
-      providesTags: ["Auth"],
-    }),
+    })
   }),
 });
 
@@ -155,6 +134,5 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useRefreshMutation,
-  useLogoutMutation,
-  useGetCurrentUserQuery,
+  useLogoutMutation
 } = authApiSlice;
