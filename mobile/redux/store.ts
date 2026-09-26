@@ -2,10 +2,12 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import appReducer from "./appSlice";
 import { baseApi } from "./baseApiSlice";
+import bookingReducer from "./bookingSlice";
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
+    booking: bookingReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

@@ -9,6 +9,7 @@ import { Mutex } from "async-mutex";
 
 import { logOut, setAccessToken } from "./appSlice";
 import type { RootState } from "./store";
+import { setDeliveryMethod } from "./bookingSlice";
 
 const BASE_URL = "http://192.168.0.194:8080/api";
 
@@ -130,5 +131,5 @@ export const baseApi = createApi({
 
   endpoints: () => ({}),
 
-  tagTypes: ["Auth", "LaundryOrders", "LaundryServices", "LaundryItems", "Locations", "User"],
+  tagTypes: ["Auth", "DeliveryMethods", "LaundryOrders", "LaundryServices", "LaundryItems", "LaundryLocations", "User"],
 });

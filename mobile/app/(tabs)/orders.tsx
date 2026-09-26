@@ -39,7 +39,7 @@ function getStatusStyles(status: OrderStatus): {
         icon: "time-outline",
       };
 
-    case "Processing":
+    case "InProgress":
       return {
         container: "bg-blue-100",
         text: "text-blue-700",
@@ -82,7 +82,7 @@ function StatusBadge({ status }: { status: OrderStatus }) {
         color={
           status === "Pending"
             ? "#B45309"
-            : status === "Processing"
+            : status === "InProgress"
               ? "#1D4ED8"
               : status === "Completed"
                 ? "#047857"

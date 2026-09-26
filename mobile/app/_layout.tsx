@@ -43,6 +43,20 @@ export default function RootLayout() {
             />
 
             <Stack.Screen
+              name="booking"
+              options={{
+                headerShown: false,
+              }}
+            />
+
+            {/* <Stack.Screen
+              name="orders"
+              options={{
+                headerShown: false,
+              }}
+            /> */}
+
+            <Stack.Screen
               name="modal"
               options={{
                 presentation: "modal",
