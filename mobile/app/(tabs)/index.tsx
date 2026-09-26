@@ -208,8 +208,7 @@ export default function HomeScreen() {
           <View className="flex-row">
             <Pressable
               onPress={() => {
-                // Booking flow will be connected when its
-                // backend contract is ready.
+                router.push("/booking")
               }}
               className="mr-3 flex-1 rounded-2xl bg-white p-4 shadow-sm active:bg-slate-100"
             >
