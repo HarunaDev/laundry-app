@@ -33,7 +33,7 @@ function getStatusStyles(status: OrderStatus): {
         iconColor: "#B45309",
       };
 
-    case "Processing":
+    case "InProgress":
       return {
         background: "bg-blue-100",
         text: "text-blue-700",
