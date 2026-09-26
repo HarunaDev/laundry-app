@@ -16,12 +16,12 @@ import { useGetMyOrdersQuery } from "@/redux/slices/orderApiSlice";
 import { formatCurrency } from "@/utils/currency";
 import { formatOrderDate } from "@/utils/date";
 
-type OrderFilter = "All" | "Pending" | "Processing" | "Completed" | "Cancelled";
+type OrderFilter = "All" | "Pending" | "InProgress" | "Completed" | "Cancelled";
 
 const filters: OrderFilter[] = [
   "All",
   "Pending",
-  "Processing",
+  "InProgress",
   "Completed",
   "Cancelled",
 ];

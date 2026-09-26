@@ -228,7 +228,7 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => {
-                router.push("/");
+                router.push("/orders");
               }}
               className="flex-1 rounded-2xl bg-white p-4 shadow-sm active:bg-slate-100"
             >
