@@ -31,7 +31,7 @@ public class UserService
                 UserName = u.UserName,
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
-                TotalOrders = u.LaundryOrders.Count(),
+                TotalOrders = _context.LaundryOrders.Count(o => o.UserId == u.Id && !o.IsDeleted),
                 Status = u.Status.ToString(),
                 Role = u.Role.ToString()
             });
@@ -61,7 +61,7 @@ public class UserService
                 UserName = u.UserName,
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
-                TotalOrders = u.LaundryOrders.Count(),
+                TotalOrders = _context.LaundryOrders.Count(o => o.UserId == u.Id && !o.IsDeleted),
                 Status = u.Status.ToString(),
                 Role = u.Role.ToString()
             })
@@ -86,7 +86,7 @@ public class UserService
                 UserName = u.UserName,
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
-                TotalOrders = u.LaundryOrders.Count(),
+                TotalOrders = _context.LaundryOrders.Count(o => o.UserId == u.Id && !o.IsDeleted),
                 Status = u.Status.ToString(),
                 Role = u.Role.ToString()
             })
@@ -139,6 +139,11 @@ public class UserService
 
         await _context.SaveChangesAsync();
 
+        var totalOrders = await _context.LaundryOrders
+            .CountAsync(o =>
+                o.UserId == user.Id &&
+                !o.IsDeleted);
+
         return new UserResponseDto
         {
             Id = user.Id,
@@ -146,8 +151,7 @@ public class UserService
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
             // bug to count users orders as i will need to include the user id field when the laundry order is created
-            TotalOrders = await _context.LaundryOrders
-                .CountAsync(o => o.UserId == user.Id),
+            TotalOrders = totalOrders,
             Status = user.Status.ToString()
         };
     }
@@ -198,6 +202,11 @@ public class UserService
 
         await _context.SaveChangesAsync();
 
+        var totalOrders = await _context.LaundryOrders
+            .CountAsync(o =>
+                o.UserId == user.Id &&
+                !o.IsDeleted);
+
         return new UserResponseDto
         {
             Id = user.Id,
@@ -205,8 +214,7 @@ public class UserService
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
             // bug with (o.ClientId)
-            TotalOrders = await _context.LaundryOrders
-                .CountAsync(o => o.UserId == user.Id),
+            TotalOrders = totalOrders,
             Status = user.Status.ToString()
         };
     }
