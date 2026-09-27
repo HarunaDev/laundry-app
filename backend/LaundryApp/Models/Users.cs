@@ -23,6 +23,8 @@ public class User
     public UserStatus Status { get; set; } = UserStatus.Active;
     public bool IsDeleted { get; set; } = false;
 
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     public DateTime? DeletedAt { get; set; }
 
     public string? DeletedBy { get; set; }
