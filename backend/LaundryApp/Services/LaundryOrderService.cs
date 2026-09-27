@@ -490,6 +490,12 @@ public class LaundryOrderService
             currentUser.FindFirstValue(
                 ClaimTypes.NameIdentifier);
 
+        if (string.IsNullOrWhiteSpace(currentUserId))
+    {
+        throw new UnauthorizedAccessException(
+            "Unable to determine the current user.");
+    }
+
         var order = await _context.LaundryOrders
             .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o =>
@@ -514,155 +520,155 @@ public class LaundryOrderService
         // VALIDATE DELIVERY METHOD
         // ------------------------------------------------------
 
-        var deliveryMethod =
-            await _context.DeliveryMethods
-                .FirstOrDefaultAsync(d =>
-                    d.Id == dto.DeliveryMethodId &&
-                    d.IsActive &&
-                    !d.IsDeleted);
+        // var deliveryMethod =
+        //     await _context.DeliveryMethods
+        //         .FirstOrDefaultAsync(d =>
+        //             d.Id == dto.DeliveryMethodId &&
+        //             d.IsActive &&
+        //             !d.IsDeleted);
 
-        if (deliveryMethod is null)
-        {
-            throw new NotFoundException(
-                "Delivery method not found.");
-        }
+        // if (deliveryMethod is null)
+        // {
+        //     throw new NotFoundException(
+        //         "Delivery method not found.");
+        // }
 
-        var (requiresPickupAddress, requiresDeliveryAddress) = GetAddressRequirements(deliveryMethod.Name);
-
-
-        if (requiresPickupAddress &&
-            string.IsNullOrWhiteSpace(dto.PickupAddress))
-        {
-            throw new BadRequestException(
-                "Pickup address is required for the selected delivery method.");
-        }
+        // var (requiresPickupAddress, requiresDeliveryAddress) = GetAddressRequirements(deliveryMethod.Name);
 
 
-        if (requiresDeliveryAddress &&
-            string.IsNullOrWhiteSpace(dto.DeliveryAddress))
-        {
-            throw new BadRequestException(
-                "Delivery address is required for the selected delivery method.");
-        }
+        // if (requiresPickupAddress &&
+        //     string.IsNullOrWhiteSpace(dto.PickupAddress))
+        // {
+        //     throw new BadRequestException(
+        //         "Pickup address is required for the selected delivery method.");
+        // }
+
+
+        // if (requiresDeliveryAddress &&
+        //     string.IsNullOrWhiteSpace(dto.DeliveryAddress))
+        // {
+        //     throw new BadRequestException(
+        //         "Delivery address is required for the selected delivery method.");
+        // }
 
 
         // ------------------------------------------------------
         // VALIDATE LAUNDRY LOCATION
         // ------------------------------------------------------
 
-        LaundryLocation? laundryLocation = null;
+        // LaundryLocation? laundryLocation = null;
 
-        if (dto.LaundryLocationId.HasValue)
-        {
-            laundryLocation =
-                await _context.LaundryLocations
-                    .FirstOrDefaultAsync(l =>
-                        l.Id == dto.LaundryLocationId.Value &&
-                        l.IsActive &&
-                        !l.IsDeleted);
+        // if (dto.LaundryLocationId.HasValue)
+        // {
+        //     laundryLocation =
+        //         await _context.LaundryLocations
+        //             .FirstOrDefaultAsync(l =>
+        //                 l.Id == dto.LaundryLocationId.Value &&
+        //                 l.IsActive &&
+        //                 !l.IsDeleted);
 
-            if (laundryLocation is null)
-            {
-                throw new NotFoundException(
-                    "Laundry location not found.");
-            }
-        }
+        //     if (laundryLocation is null)
+        //     {
+        //         throw new NotFoundException(
+        //             "Laundry location not found.");
+        //     }
+        // }
 
 
         // ------------------------------------------------------
         // VALIDATE ITEMS
         // ------------------------------------------------------
 
-        var itemIds = dto.Items
-            .Select(i => i.LaundryItemId)
-            .Distinct()
-            .ToList();
+        // var itemIds = dto.Items
+        //     .Select(i => i.LaundryItemId)
+        //     .Distinct()
+        //     .ToList();
 
-        var laundryItems =
-            await _context.LaundryItems
-                .Where(i =>
-                    itemIds.Contains(i.Id) &&
-                    !i.IsDeleted)
-                .Include(i => i.LaundryService)
-                .ToListAsync();
+        // var laundryItems =
+        //     await _context.LaundryItems
+        //         .Where(i =>
+        //             itemIds.Contains(i.Id) &&
+        //             !i.IsDeleted)
+        //         .Include(i => i.LaundryService)
+        //         .ToListAsync();
 
-        if (laundryItems.Count != itemIds.Count)
-        {
-            throw new BadRequestException(
-                "One or more laundry items are invalid.");
-        }
+        // if (laundryItems.Count != itemIds.Count)
+        // {
+        //     throw new BadRequestException(
+        //         "One or more laundry items are invalid.");
+        // }
 
 
         // ------------------------------------------------------
         // UPDATE ORDER
         // ------------------------------------------------------
 
-        order.DeliveryMethodId = deliveryMethod.Id;
+        // order.DeliveryMethodId = deliveryMethod.Id;
 
-        order.DeliveryPrice = deliveryMethod.Price;
+        // order.DeliveryPrice = deliveryMethod.Price;
 
-        order.LaundryLocationId = laundryLocation?.Id;
+        // order.LaundryLocationId = laundryLocation?.Id;
 
         // order.DeliveryAddress =
         //     dto.DeliveryAddress;
 
-        order.PickupAddress = requiresPickupAddress
-        ? dto.PickupAddress
-        : null;
+        // order.PickupAddress = requiresPickupAddress
+        // ? dto.PickupAddress
+        // : null;
 
 
-        order.DeliveryAddress =
-            requiresDeliveryAddress
-                ? dto.DeliveryAddress
-                : null;
+        // order.DeliveryAddress =
+        //     requiresDeliveryAddress
+        //         ? dto.DeliveryAddress
+        //         : null;
 
         // ------------------------------------------------------
         // REMOVE OLD ITEMS
         // ------------------------------------------------------
 
-        _context.OrderItems.RemoveRange(
-            order.OrderItems);
+        // _context.OrderItems.RemoveRange(
+        //     order.OrderItems);
 
 
         // ------------------------------------------------------
         // ADD UPDATED ITEMS
         // ------------------------------------------------------
 
-        foreach (var requestItem in dto.Items)
-        {
-            var laundryItem =
-                laundryItems.First(i =>
-                    i.Id == requestItem.LaundryItemId);
+        // foreach (var requestItem in dto.Items)
+        // {
+        //     var laundryItem =
+        //         laundryItems.First(i =>
+        //             i.Id == requestItem.LaundryItemId);
 
-            var orderItem = new OrderItem
-            {
-                LaundryItemId = laundryItem.Id,
+        //     var orderItem = new OrderItem
+        //     {
+        //         LaundryItemId = laundryItem.Id,
 
-                LaundryItemName = laundryItem.Name,
+        //         LaundryItemName = laundryItem.Name,
 
-                LaundryServiceName = laundryItem.LaundryService.Name,
+        //         LaundryServiceName = laundryItem.LaundryService.Name,
 
-                UnitPrice = laundryItem.Price,
+        //         UnitPrice = laundryItem.Price,
 
-                Quantity = requestItem.Quantity,
+        //         Quantity = requestItem.Quantity,
 
-                TotalPrice = laundryItem.Price *
-                    requestItem.Quantity
-            };
+        //         TotalPrice = laundryItem.Price *
+        //             requestItem.Quantity
+        //     };
 
-            order.OrderItems.Add(orderItem);
-        }
+        //     order.OrderItems.Add(orderItem);
+        // }
 
 
         // ------------------------------------------------------
         // RECALCULATE TOTALS
         // ------------------------------------------------------
 
-        order.ItemsTotal =
-            order.OrderItems.Sum(i =>
-                i.TotalPrice);
+        // order.ItemsTotal =
+        //     order.OrderItems.Sum(i =>
+        //         i.TotalPrice);
 
-        order.GrandTotal = order.ItemsTotal + order.DeliveryPrice;
+        // order.GrandTotal = order.ItemsTotal + order.DeliveryPrice;
 
 
         // ------------------------------------------------------
