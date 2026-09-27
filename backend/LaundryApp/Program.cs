@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.RateLimiting;
+using System.Text.Json.Serialization;
 using System.Text;
 using DotNetEnv;
 
@@ -48,10 +49,17 @@ builder.Services.AddScoped<LaundryItemService>();
 builder.Services.AddScoped<LaundryLocationService>();
 builder.Services.AddScoped<DeliveryMethodService>();
 builder.Services.AddScoped<LaundryOrderService>();
+builder.Services.AddScoped<DashboardMetricsService>();
 builder.Services.AddSingleton<HtmlSanitizerService>();
 
 // add controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter()
+        );
+    });
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
     {

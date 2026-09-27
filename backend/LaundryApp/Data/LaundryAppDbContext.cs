@@ -47,7 +47,7 @@ public class LaundryAppDbContext : DbContext
 
         modelBuilder.Entity<LaundryOrder>()
             .HasOne(o => o.User)
-            .WithMany()
+            .WithMany(u => u.LaundryOrders)
             .HasForeignKey(o => o.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
