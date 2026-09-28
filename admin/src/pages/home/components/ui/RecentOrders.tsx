@@ -2,21 +2,22 @@ import type { JSX } from "react";
 import SectionCard from "../../../../components/ui/SectionCard";
 
 import type {
-  DashboardPeriod,
-  OrdersOverviewItem,
+  DashboardOrderStatus,
+  RecentOrder,
 } from "../../../../redux/slices/dashboardApiSlice";
+import { formatChartDate } from "../../../../utils/formatDate";
 
 interface RecentOrdersProps {
-  data: OrdersOverviewItem[];
-  period: DashboardPeriod;
-  onPeriodChange: (period: DashboardPeriod) => void;
+  data: RecentOrder[];
+  // period: DashboardPeriod;
+  // onPeriodChange: (period: DashboardPeriod) => void;
   isLoading: boolean;
   isFetching: boolean;
 }
 
-type OrderStatus = "Pending" | "InProgress" | "Completed" | "Cancelled";
+// type OrderStatus = "Pending" | "InProgress" | "Completed" | "Cancelled";
 
-const getStatusStyles = (status: OrderStatus): string => {
+const getStatusStyles = (status: DashboardOrderStatus): string => {
   switch (status) {
     case "Pending":
       return "bg-yellow-50 text-yellow-600";
@@ -142,25 +143,23 @@ const RecentOrders = ({
               {" "}
               {data.map((order) => (
                 <tr
-                  key={order.date}
+                  key={order.orderId}
                   className="border-b border-gray-50 last:border-0"
                 >
                   {" "}
                   <td className="py-3 text-xs font-medium text-gray-700">
                     {" "}
-                    {order.date}{" "}
+                    #{order.orderId}{" "}
                   </td>{" "}
-                  <td className="py-3 text-xs text-gray-600"> — </td>{" "}
-                  <td className="py-3 text-xs text-gray-500"> {order.date} </td>{" "}
+                  <td className="py-3 text-xs text-gray-600"> {order.customerName} </td>{" "}
+                  <td className="py-3 text-xs text-gray-500"> {formatChartDate(order.createdAt)} </td>{" "}
                   <td className="py-3">
                     {" "}
                     <span
-                      className={`rounded-full px-2 py-1 text-[10px] font-medium ${getStatusStyles(
-                        "InProgress"
-                      )}`}
+                      className={`rounded-full px-2 py-1 text-[10px] font-medium ${getStatusStyles(order.status)}`}
                     >
                       {" "}
-                      Processing{" "}
+                      {order.status}{" "}
                     </span>{" "}
                   </td>{" "}
                 </tr>

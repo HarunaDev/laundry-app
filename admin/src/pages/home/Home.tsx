@@ -41,9 +41,9 @@ const Home = (): JSX.Element => {
           isLoading={isLoading}
           isFetching={isFetching}/>
 
-        <RecentOrders data={data?.ordersOverview ?? []}
-          period={period}
-          onPeriodChange={setPeriod}
+        <RecentOrders data={data?.recentOrders ?? []}
+          // period={period}
+          // onPeriodChange={setPeriod}
           isLoading={isLoading}
           isFetching={isFetching}/>
       </div>
