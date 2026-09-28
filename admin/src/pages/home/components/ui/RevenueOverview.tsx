@@ -180,7 +180,9 @@ const RevenueOverview = ({
                   return (
                     <div
                       key={`${item.date}`}
-                      className="flex h-full flex-1 items-end justify-center"
+                      className={`flex h-full items-end justify-center ${
+                        data.length === 1 ? "w-12 shrink-0" : "flex-1"
+                      }`}
                       title={`₦${item.revenue.toLocaleString("en-NG", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
