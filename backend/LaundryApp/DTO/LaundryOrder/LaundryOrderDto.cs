@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LaundryApp.Models;
 
 namespace LaundryApp.DTO.LaundryOrder;
 
@@ -14,6 +15,9 @@ public class CreateLaundryOrderDto
 
     public string? PickupAddress { get; set; }
     public string? DeliveryAddress { get; set; }
+
+    [Required]
+    public PaymentMethod PaymentMethod { get; set; }
 
     [Required]
     [MinLength(1)]
@@ -89,6 +93,16 @@ public class LaundryOrderResponseDto
 
     public string? DeliveryAddress { get; set; }
     public string? PickupAddress { get; set; }
+
+    public PaymentMethod PaymentMethod { get; set; }
+
+    public PaymentStatus PaymentStatus { get; set; }
+
+    public string? ReceiptFileName { get; set; }
+
+    public DateTime? ReceiptUploadedAt { get; set; }
+
+    public DateTime? PaymentConfirmedAt { get; set; }
 
     public decimal DeliveryPrice { get; set; }
 

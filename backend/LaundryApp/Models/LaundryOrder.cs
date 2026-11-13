@@ -63,6 +63,8 @@ public class LaundryOrder
 
     // Navigation
 
+    public Payment Payment { get; set; } = null!;
+
     public ICollection<OrderItem> OrderItems { get; set; }
         = new List<OrderItem>();
 }
