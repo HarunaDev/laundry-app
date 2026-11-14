@@ -71,7 +71,6 @@ public class LaundryOrderService
                 "Unable to determine the current user.");
         }
 
-
         // ------------------------------------------------------
         // DETERMINE WHICH USER THE ORDER BELONGS TO
         // ------------------------------------------------------
@@ -109,6 +108,13 @@ public class LaundryOrderService
         {
             throw new NotFoundException(
                 "Customer not found.");
+        }
+
+        // Validate payment
+
+        if (!Enum.IsDefined(dto.PaymentMethod))
+        {
+            throw new BadRequestException("Invalid payment method. Allowed values are Cash or Transfer.");
         }
 
 
@@ -196,6 +202,11 @@ public class LaundryOrderService
                 "One or more laundry items are invalid.");
         }
 
+        if (!Enum.IsDefined(dto.PaymentMethod))
+        {
+            throw new BadRequestException("Invalid payment method. Allowed values are Cash and Transfer.");
+        }
+
 
         // ------------------------------------------------------
         // DETERMINE INITIAL STATUS
@@ -231,7 +242,14 @@ public class LaundryOrderService
 
             Status = initialStatus,
 
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+
+            Payment = new Payment
+            {
+                PaymentMethod = dto.PaymentMethod,
+                PaymentStatus = PaymentStatus.Pending,
+                CreatedAt = DateTime.UtcNow
+            }
         };
 
 
@@ -314,6 +332,7 @@ public class LaundryOrderService
             .Include(o => o.User)
             .Include(o => o.DeliveryMethod)
             .Include(o => o.LaundryLocation)
+            .Include(o => o.Payment)
             .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o =>
                 o.Id == orderId &&
@@ -736,6 +755,7 @@ public class LaundryOrderService
             int orderId)
     {
         var order = await _context.LaundryOrders
+            .Include(o => o.Payment)
             .FirstOrDefaultAsync(o =>
                 o.Id == orderId &&
                 !o.IsDeleted);
@@ -751,6 +771,11 @@ public class LaundryOrderService
         {
             throw new BadRequestException(
                 "Only orders in progress can be completed.");
+        }
+
+        if (order.Payment is null || order.Payment.PaymentStatus != PaymentStatus.Paid)
+        {
+            throw new BadRequestException("Payment must be confirmed before completing this order.");
         }
 
 
@@ -785,6 +810,7 @@ public class LaundryOrderService
             .Include(o => o.DeliveryMethod)
             .Include(o => o.LaundryLocation)
             .Include(o => o.OrderItems)
+            .Include(o => o.Payment)
             .FirstOrDefaultAsync(o =>
                 o.Id == orderId &&
                 !o.IsDeleted);
@@ -826,6 +852,16 @@ public class LaundryOrderService
             PickupAddress = order.PickupAddress,
 
             DeliveryAddress = order.DeliveryAddress,
+
+            PaymentMethod = order.Payment.PaymentMethod,
+
+            PaymentStatus = order.Payment.PaymentStatus,
+
+            ReceiptFileName = order.Payment.ReceiptFileName,
+
+            ReceiptUploadedAt = order.Payment.ReceiptUploadedAt,
+
+            PaymentConfirmedAt = order.Payment.ConfirmedAt,
 
             DeliveryPrice = order.DeliveryPrice,
 
