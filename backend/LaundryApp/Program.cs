@@ -51,6 +51,7 @@ builder.Services.AddScoped<DeliveryMethodService>();
 builder.Services.AddScoped<LaundryOrderService>();
 builder.Services.AddScoped<DashboardMetricsService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<BankAccountService>();
 builder.Services.AddSingleton<HtmlSanitizerService>();
 
 // add controllers
