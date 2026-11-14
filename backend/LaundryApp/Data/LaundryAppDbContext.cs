@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using LaundryApp.Models;
-using LaundryApp.Services;
 
 namespace LaundryApp.Data;
 
@@ -31,8 +30,8 @@ public class LaundryAppDbContext : DbContext
 
     public DbSet<LaundryOrder> LaundryOrders => Set<LaundryOrder>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
-
-
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
 
     // public DbSet<Category> Categories => Set<Category>();
 
@@ -81,6 +80,21 @@ public class LaundryAppDbContext : DbContext
             .HasForeignKey(i => i.LaundryOrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
+
+        // ===========================
+        // ORDER -> PAYMENT (ONE-TO-ONE)
+        // ===========================
+
+        modelBuilder.Entity<LaundryOrder>()
+            .HasOne(o => o.Payment)
+            .WithOne(p => p.LaundryOrder)
+            .HasForeignKey<Payment>(p => p.LaundryOrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Payment>()
+            .HasIndex(p => p.LaundryOrderId)
+            .IsUnique();
+
         // ===========================
         // LAUNDRY ITEM -> ORDER ITEMS
         // ===========================
@@ -112,24 +126,20 @@ public class LaundryAppDbContext : DbContext
             .Property(o => o.GrandTotal)
             .HasPrecision(18, 2);
 
-        // seed a single SuperAdmin User
-        // var superAdminId = Guid.NewGuid().ToString();
-        // var passwordService = new PasswordService();
-        // var superAdmin = new User
-        // {
-        //     Id = "a005670-0050-2000-0040-104020700001",
-        //     UserName = "superadmin",
-        //     Email = "superadmin@laundryapp.com",
-        //     PasswordHash = passwordService.Hash("123456"),
-        //     Role = UserRole.SuperAdmin
-        // };
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.PaymentMethod)
+            .HasConversion<string>();
 
-        // modelBuilder.Entity<User>().HasData(superAdmin);
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.PaymentStatus)
+            .HasConversion<string>();
+
+        // ===========================
+        // BANK ACCOUNT
+        // ===========================
+
+        modelBuilder.Entity<BankAccount>()
+            .HasIndex(b => b.AccountNumber)
+            .IsUnique();
     }
 }
-
-// public DbSet<LaundryOrder> LaundryOrders =>
-//         Set<LaundryOrder>();
-
-//     public DbSet<OrderItem> OrderItems =>
-//         Set<OrderItem>();

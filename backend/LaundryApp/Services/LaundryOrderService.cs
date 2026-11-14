@@ -202,6 +202,11 @@ public class LaundryOrderService
                 "One or more laundry items are invalid.");
         }
 
+        if (!Enum.IsDefined(dto.PaymentMethod))
+        {
+            throw new BadRequestException("Invalid payment method. Allowed values are Cash and Transfer.");
+        }
+
 
         // ------------------------------------------------------
         // DETERMINE INITIAL STATUS
@@ -327,6 +332,7 @@ public class LaundryOrderService
             .Include(o => o.User)
             .Include(o => o.DeliveryMethod)
             .Include(o => o.LaundryLocation)
+            .Include(o => o.Payment)
             .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o =>
                 o.Id == orderId &&

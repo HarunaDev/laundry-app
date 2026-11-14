@@ -50,6 +50,7 @@ builder.Services.AddScoped<LaundryLocationService>();
 builder.Services.AddScoped<DeliveryMethodService>();
 builder.Services.AddScoped<LaundryOrderService>();
 builder.Services.AddScoped<DashboardMetricsService>();
+builder.Services.AddScoped<PaymentService>();
 builder.Services.AddSingleton<HtmlSanitizerService>();
 
 // add controllers

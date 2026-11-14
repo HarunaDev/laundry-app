@@ -17,6 +17,7 @@ public class Payment
     public string? ReceiptPath { get; set; }
     public string? ReceiptFileName { get; set; }
     public string? ReceiptContentType { get; set; }
+    public long? ReceiptFileSize { get; set; }
     public DateTime? ReceiptUploadedAt { get; set; }
 
     // Payment confirmation audit
