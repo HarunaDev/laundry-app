@@ -17,6 +17,39 @@ public class PaymentController : ControllerBase
         _paymentService = paymentService;
     }
 
+
+    [HttpGet]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    public async Task<IActionResult> GetAllPayments(
+        [FromQuery] PaymentQueryDto filters)
+    {
+        var result = await _paymentService.GetAllAsync(filters);
+
+        return Ok(new
+        {
+            success = true,
+            message = "Payments retrieved successfully.",
+            data = result
+        });
+    }
+
+    [HttpGet("my")]
+    [Authorize(Roles = "Client")]
+    public async Task<IActionResult> GetMyPayments(
+        [FromQuery] PaymentQueryDto filters)
+    {
+        var result = await _paymentService.GetMyPaymentsAsync(
+            filters,
+            User);
+
+        return Ok(new
+        {
+            success = true,
+            message = "Payment history retrieved successfully.",
+            data = result
+        });
+    }
+
     // ==========================================================
     // GET PAYMENT DETAILS
     //
