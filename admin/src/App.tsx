@@ -16,6 +16,7 @@ import Items from './pages/items/Items';
 import DeliveryMethods from './pages/delivery/DeliveryMethod';
 import Admins from './pages/admin/Admins';
 import OrderDetails from './pages/orders/OrderDetails';
+import Accounts from './pages/account/Accounts';
 
 const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
       {
         path: "admin",
         element: <Admins />,
+      },
+      {
+        path: "accounts",
+        element: <Accounts />,
       },
     ],
   },
