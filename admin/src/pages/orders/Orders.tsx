@@ -44,6 +44,7 @@ const Orders = (): JSX.Element => {
    */
   const {
     form,
+    setPaymentMethod,
 
     selectedServiceId,
     selectedItems,
@@ -206,6 +207,8 @@ const Orders = (): JSX.Element => {
         services={services}
         deliveryMethods={deliveryMethods}
         locations={locations}
+        paymentMethod={form.paymentMethod}
+        onPaymentMethodChange={setPaymentMethod}
         laundryItems={laundryItems}
         selectedServiceId={
           selectedServiceId

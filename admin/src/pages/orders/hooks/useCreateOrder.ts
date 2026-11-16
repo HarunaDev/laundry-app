@@ -4,6 +4,7 @@ import {
   useCreateOrderMutation,
   type CreateOrderRequest,
   type OrderItemRequest,
+  type PaymentMethod,
 } from "../../../redux/slices/ordersApiSlice";
 
 import { useGetUsersQuery } from "../../../redux/slices/usersApiSlice";
@@ -30,6 +31,7 @@ interface CreateOrderFormState {
   laundryLocationId: number;
   pickupAddress: string;
   deliveryAddress: string;
+  paymentMethod: PaymentMethod | "";
   items: OrderItemRequest[];
 }
 
@@ -49,6 +51,7 @@ const initialFormState: CreateOrderFormState = {
   laundryLocationId: 0,
   pickupAddress: "",
   deliveryAddress: "",
+  paymentMethod: "",
   items: [],
 };
 
@@ -91,6 +94,13 @@ export const useCreateOrder = () => {
     useState(0);
 
   const [createOrder, createOrderState] = useCreateOrderMutation();
+
+  const setPaymentMethod = (paymentMethod: PaymentMethod | "") => {
+    setForm((current) => ({
+      ...current,
+      paymentMethod,
+    }));
+  };
 
   /*
    * Clients
@@ -355,10 +365,15 @@ export const useCreateOrder = () => {
    * Build API request
    */
   const buildPayload = (): CreateOrderRequest => {
+    if (!form.paymentMethod) {
+      throw new Error("Please select a payment method.");
+    }
+
     const payload: CreateOrderRequest = {
       userId: form.userId,
       deliveryMethodId: form.deliveryMethodId,
       laundryLocationId: form.laundryLocationId,
+      paymentMethod: form.paymentMethod,
       items: form.items,
     };
 
@@ -460,6 +475,7 @@ export const useCreateOrder = () => {
     setLaundryLocationId,
     setPickupAddress,
     setDeliveryAddress,
+    setPaymentMethod,
 
     /*
      * Items

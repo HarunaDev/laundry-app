@@ -6,6 +6,7 @@ import type {
   LaundryOrderDetails,
 } from "../../types/orders";
 
+export type PaymentMethod = "Cash" | "Transfer";
 export interface OrderItemRequest {
   laundryItemId: number;
   quantity: number;
@@ -17,6 +18,7 @@ export interface CreateOrderRequest {
   laundryLocationId: number;
   pickupAddress?: string;
   deliveryAddress?: string;
+  paymentMethod: PaymentMethod;
   items: OrderItemRequest[];
 }
 
