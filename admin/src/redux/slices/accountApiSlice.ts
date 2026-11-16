@@ -2,6 +2,7 @@ import { generalApiSlice } from "../apiSlice";
 
 export interface LaundryAccounts {
     id: number;
+    bankName: string;
     accountName: string;
     accountNumber: string;
     isActive: boolean;
@@ -78,7 +79,7 @@ const accountApiSlice = generalApiSlice.injectEndpoints({
         number
       >({
         query: (id) => ({
-          url: `/bank-account/${id}`,
+          url: `/bank-accounts/${id}`,
           method: "DELETE",
         }),
         invalidatesTags: ["Account"],
