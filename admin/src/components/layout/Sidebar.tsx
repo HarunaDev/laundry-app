@@ -11,6 +11,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  CurrencyIcon,
 } from "lucide-react";
 
 import type { JSX } from "react";
@@ -73,6 +74,12 @@ const navItems: NavItem[] = [
     label: "Reports",
     path: "/reports",
     icon: <BarChart3 size={17} />,
+  },
+  
+  {
+    label: "Accounts",
+    path: "/accounts",
+    icon: <CurrencyIcon size={17} />,
   },
 
   {
