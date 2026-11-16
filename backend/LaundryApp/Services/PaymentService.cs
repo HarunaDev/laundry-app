@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using LaundryApp.Data;
 using LaundryApp.DTO.Payment;
+using LaundryApp.DTO.Responses;
 using LaundryApp.Exceptions;
 using LaundryApp.Models;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,154 @@ public class PaymentService
         _context = context;
         _environment = environment;
     }
+
+    // ==========================================================
+    // GET ALL PAYMENTS 
+    // ==========================================================
+    public async Task<PagedResponse<PaymentResponseDto>> GetAllAsync(
+        PaymentQueryDto filters)
+    {
+        if (filters.FromDate.HasValue &&
+            filters.ToDate.HasValue &&
+            filters.FromDate.Value > filters.ToDate.Value)
+        {
+            throw new BadRequestException(
+                "FromDate cannot be later than ToDate.");
+        }
+
+        var query = _context.Payments
+            .AsNoTracking()
+            .Include(p => p.LaundryOrder)
+            .Where(p => !p.LaundryOrder.IsDeleted);
+
+        // Filter by payment status.
+        if (filters.PaymentStatus.HasValue)
+        {
+            query = query.Where(p =>
+                p.PaymentStatus == filters.PaymentStatus.Value);
+        }
+
+        // Filter by payment method.
+        if (filters.PaymentMethod.HasValue)
+        {
+            query = query.Where(p =>
+                p.PaymentMethod == filters.PaymentMethod.Value);
+        }
+
+        // Filter by order ID.
+        if (filters.LaundryOrderId.HasValue)
+        {
+            query = query.Where(p =>
+                p.LaundryOrderId == filters.LaundryOrderId.Value);
+        }
+
+        // Filter by creation date.
+        if (filters.FromDate.HasValue)
+        {
+            query = query.Where(p =>
+                p.CreatedAt >= filters.FromDate.Value);
+        }
+
+        if (filters.ToDate.HasValue)
+        {
+            query = query.Where(p =>
+                p.CreatedAt <= filters.ToDate.Value);
+        }
+
+        // Get the total number of matching records before pagination.
+        var totalRecords = await query.CountAsync();
+
+        // Apply pagination.
+        var payments = await query
+            .OrderByDescending(p => p.CreatedAt)
+            .ThenByDescending(p => p.Id)
+            .Skip((filters.PageNumber - 1) * filters.PageSize)
+            .Take(filters.PageSize)
+            .ToListAsync();
+
+        var items = payments
+            .Select(MapToResponse)
+            .ToList();
+
+        return new PagedResponse<PaymentResponseDto>
+        {
+            PageNumber = filters.PageNumber,
+            PageSize = filters.PageSize,
+            TotalRecords = totalRecords,
+            Items = items
+        };
+    }
+
+
+    // ==========================================================
+    // GET PERSONALIZED PAYMENT 
+    // ==========================================================
+
+
+    public async Task<PagedResponse<PaymentResponseDto>> GetMyPaymentsAsync(
+        PaymentQueryDto filters,
+        ClaimsPrincipal currentUser)
+    {
+        var userId = GetCurrentUserId(currentUser);
+
+        if (filters.FromDate.HasValue &&
+            filters.ToDate.HasValue &&
+            filters.FromDate.Value > filters.ToDate.Value)
+        {
+            throw new BadRequestException(
+                "FromDate cannot be later than ToDate.");
+        }
+
+        var query = _context.Payments
+            .AsNoTracking()
+            .Include(p => p.LaundryOrder)
+            .Where(p =>
+                p.LaundryOrder.UserId == userId &&
+                !p.LaundryOrder.IsDeleted);
+
+        if (filters.PaymentStatus.HasValue)
+        {
+            query = query.Where(p =>
+                p.PaymentStatus == filters.PaymentStatus.Value);
+        }
+
+        if (filters.PaymentMethod.HasValue)
+        {
+            query = query.Where(p =>
+                p.PaymentMethod == filters.PaymentMethod.Value);
+        }
+
+        if (filters.FromDate.HasValue)
+        {
+            query = query.Where(p =>
+                p.CreatedAt >= filters.FromDate.Value);
+        }
+
+        if (filters.ToDate.HasValue)
+        {
+            query = query.Where(p =>
+                p.CreatedAt <= filters.ToDate.Value);
+        }
+
+        var totalRecords = await query.CountAsync();
+
+        var payments = await query
+            .OrderByDescending(p => p.CreatedAt)
+            .ThenByDescending(p => p.Id)
+            .Skip((filters.PageNumber - 1) * filters.PageSize)
+            .Take(filters.PageSize)
+            .ToListAsync();
+
+        return new PagedResponse<PaymentResponseDto>
+        {
+            PageNumber = filters.PageNumber,
+            PageSize = filters.PageSize,
+            TotalRecords = totalRecords,
+            Items = payments.Select(MapToResponse).ToList()
+        };
+    }
+
+
 
     // ==========================================================
     // GET PAYMENT BY ORDER ID

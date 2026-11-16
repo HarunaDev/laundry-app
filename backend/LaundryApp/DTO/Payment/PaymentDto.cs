@@ -53,3 +53,22 @@ public class PaymentResponseDto
 
     public DateTime CreatedAt { get; set; }
 }
+
+public class PaymentQueryDto
+{
+    [Range(1, int.MaxValue)]
+    public int PageNumber { get; set; } = 1;
+
+    [Range(1, 100)]
+    public int PageSize { get; set; } = 10;
+
+    public PaymentStatus? PaymentStatus { get; set; }
+
+    public PaymentMethod? PaymentMethod { get; set; }
+
+    public int? LaundryOrderId { get; set; }
+
+    public DateTime? FromDate { get; set; }
+
+    public DateTime? ToDate { get; set; }
+}
