@@ -206,11 +206,11 @@ public class PaymentService
         IFormFile file,
         ClaimsPrincipal currentUser)
     {
-        var userId = GetCurrentUserId(currentUser);
+        // var userId = GetCurrentUserId(currentUser);
 
         var payment = await GetPaymentAsync(orderId);
 
-        EnsureOrderOwnership(payment, userId);
+        EnsureReceiptUploadAccess(payment, currentUser);
 
         if (payment.PaymentMethod != PaymentMethod.Transfer)
         {
@@ -447,6 +447,35 @@ public class PaymentService
     // ==========================================================
     // PRIVATE HELPERS
     // ==========================================================
+
+
+    private static void EnsureReceiptUploadAccess(
+        Payment payment,
+        ClaimsPrincipal currentUser)
+    {
+        var role = currentUser.FindFirstValue(ClaimTypes.Role);
+
+        // Administrators can upload receipts for any order.
+        if (role == UserRole.Admin.ToString() ||
+            role == UserRole.SuperAdmin.ToString())
+        {
+            return;
+        }
+
+        // Clients can only upload receipts for their own orders.
+        if (role == UserRole.Client.ToString())
+        {
+            EnsureOrderOwnership(
+                payment,
+                GetCurrentUserId(currentUser));
+
+            return;
+        }
+
+        throw new UnauthorizedException(
+            "You are not authorized to upload this payment receipt.");
+    }
+
 
     private async Task<Payment> GetPaymentAsync(int orderId)
     {

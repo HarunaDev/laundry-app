@@ -79,7 +79,7 @@ public class PaymentController : ControllerBase
     // ==========================================================
 
     [HttpPost("orders/{orderId:int}/receipt")]
-    [Authorize(Roles = "Client")]
+    [Authorize(Roles = "Client,Admin,SuperAdmin")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UploadReceipt(
     [FromRoute] int orderId,

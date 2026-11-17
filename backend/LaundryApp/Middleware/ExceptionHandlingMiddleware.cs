@@ -1,4 +1,3 @@
-using System.Net;
 using LaundryApp.DTO.Responses;
 using LaundryApp.Exceptions;
 
@@ -27,6 +26,11 @@ public class ExceptionHandlingMiddleware
         {
             _logger.LogError(ex, ex.Message);
 
+            if (context.Response.HasStarted)
+            {
+                throw;
+            }
+
             var response = new ErrorResponse
             {
                 Success = false
@@ -34,6 +38,13 @@ public class ExceptionHandlingMiddleware
 
             switch (ex)
             {
+                case BadRequestException:
+                    context.Response.StatusCode =
+                        StatusCodes.Status400BadRequest;
+                    response.ErrorCode = "BAD_REQUEST";
+                    response.Message = ex.Message;
+                    break;
+                    
                 case ValidationException:
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     response.ErrorCode = "VALIDATION_ERROR";
