@@ -849,7 +849,7 @@ const CreateOrderModal = ({
 
                         <span
                           className="
-                                min-w-[90px]
+                                min-w-22.5
                                 text-right
                                 text-sm
                                 font-semibold

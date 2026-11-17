@@ -1,5 +1,6 @@
 
 using LaundryApp.DTO.Payment;
+using LaundryApp.DTO.Responses;
 using LaundryApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,21 +21,31 @@ public class PaymentController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin,SuperAdmin")]
+    [ProducesResponseType(
+        typeof(ApiResponse<IEnumerable<PaymentResponseDto>>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetAllPayments(
         [FromQuery] PaymentQueryDto filters)
     {
         var result = await _paymentService.GetAllAsync(filters);
 
-        return Ok(new
+        return Ok(new ApiResponse<PagedResponse<PaymentResponseDto>>
         {
-            success = true,
-            message = "Payments retrieved successfully.",
-            data = result
+            Success = true,
+            Message = "Payments retrieved successfully.",
+            Data = result
         });
     }
 
     [HttpGet("my")]
     [Authorize(Roles = "Client")]
+    [ProducesResponseType(
+        typeof(ApiResponse<IEnumerable<PaymentResponseDto>>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetMyPayments(
         [FromQuery] PaymentQueryDto filters)
     {
@@ -42,11 +53,11 @@ public class PaymentController : ControllerBase
             filters,
             User);
 
-        return Ok(new
+        return Ok(new ApiResponse<PagedResponse<PaymentResponseDto>>
         {
-            success = true,
-            message = "Payment history retrieved successfully.",
-            data = result
+            Success = true,
+            Message = "Payment history retrieved successfully.",
+            Data = result
         });
     }
 
@@ -58,17 +69,22 @@ public class PaymentController : ControllerBase
 
     [HttpGet("orders/{orderId:int}")]
     [Authorize(Roles = "Client,Admin,SuperAdmin")]
+    [ProducesResponseType(
+        typeof(ApiResponse<IEnumerable<PaymentResponseDto>>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetPayment(int orderId)
     {
         var result = await _paymentService.GetByOrderIdAsync(
             orderId,
             User);
 
-        return Ok(new
+        return Ok(new ApiResponse<PaymentResponseDto>
         {
-            success = true,
-            message = "Payment retrieved successfully.",
-            data = result
+            Success = true,
+            Message = "Payment retrieved successfully.",
+            Data = result
         });
     }
 
@@ -81,6 +97,12 @@ public class PaymentController : ControllerBase
     [HttpPost("orders/{orderId:int}/receipt")]
     [Authorize(Roles = "Client,Admin,SuperAdmin")]
     [Consumes("multipart/form-data")]
+    [ProducesResponseType(
+        typeof(ApiResponse<PaymentResponseDto>),
+        StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UploadReceipt(
     [FromRoute] int orderId,
     IFormFile file)
@@ -90,11 +112,11 @@ public class PaymentController : ControllerBase
             file,
             User);
 
-        return Ok(new
+        return Ok(new ApiResponse<PaymentResponseDto>
         {
-            success = true,
-            message = "Payment receipt uploaded successfully.",
-            data = result
+            Success = true,
+            Message = "Payment receipt uploaded successfully.",
+            Data = result
         });
     }
 
@@ -106,17 +128,24 @@ public class PaymentController : ControllerBase
 
     [HttpPut("orders/{orderId:int}/confirm")]
     [Authorize(Roles = "Admin,SuperAdmin")]
+    [ProducesResponseType(
+        typeof(ApiResponse<PaymentResponseDto>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ConfirmPayment(int orderId)
     {
         var result = await _paymentService.ConfirmPaymentAsync(
             orderId,
             User);
 
-        return Ok(new
+        return Ok(new ApiResponse<PaymentResponseDto>
         {
-            success = true,
-            message = "Payment confirmed successfully.",
-            data = result
+            Success = true,
+            Message = "Payment confirmed successfully.",
+            Data = result
         });
     }
 
@@ -128,6 +157,13 @@ public class PaymentController : ControllerBase
 
     [HttpPut("orders/{orderId:int}/reject")]
     [Authorize(Roles = "Admin,SuperAdmin")]
+    [ProducesResponseType(
+        typeof(ApiResponse<PaymentResponseDto>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RejectPayment(
         int orderId,
         [FromBody] RejectPaymentDto dto)
@@ -137,11 +173,11 @@ public class PaymentController : ControllerBase
             dto,
             User);
 
-        return Ok(new
+        return Ok(new ApiResponse<PaymentResponseDto>
         {
-            success = true,
-            message = "Payment rejected successfully.",
-            data = result
+            Success = true,
+            Message = "Payment rejected successfully.",
+            Data = result
         });
     }
 
@@ -153,6 +189,13 @@ public class PaymentController : ControllerBase
 
     [HttpGet("orders/{orderId:int}/receipt")]
     [Authorize(Roles = "Admin,SuperAdmin")]
+    [ProducesResponseType(
+        typeof(ApiResponse<PaymentResponseDto>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetReceipt(int orderId)
     {
         var receipt = await _paymentService.GetReceiptAsync(

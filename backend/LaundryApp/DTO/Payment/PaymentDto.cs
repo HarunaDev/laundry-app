@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+using LaundryApp.DTO.Responses;
 using LaundryApp.Models;
 
 namespace LaundryApp.DTO.Payment;
@@ -52,6 +53,11 @@ public class PaymentResponseDto
     public DateTime? RejectedAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public static implicit operator PaymentResponseDto(PagedResponse<PaymentResponseDto> v)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class PaymentQueryDto
