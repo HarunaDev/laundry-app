@@ -22,7 +22,7 @@ public class PaymentController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(
-        typeof(ApiResponse<IEnumerable<PaymentResponseDto>>),
+        typeof(ApiResponse<PagedResponse<PaymentResponseDto>>),
         StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
@@ -42,7 +42,7 @@ public class PaymentController : ControllerBase
     [HttpGet("my")]
     [Authorize(Roles = "Client")]
     [ProducesResponseType(
-        typeof(ApiResponse<IEnumerable<PaymentResponseDto>>),
+        typeof(ApiResponse<PagedResponse<PaymentResponseDto>>),
         StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
