@@ -321,7 +321,7 @@ const Accounts = () => {
             fixed
             bottom-6
             right-6
-            z-[60]
+            z-60
             rounded-lg
             bg-red-50
             px-4
