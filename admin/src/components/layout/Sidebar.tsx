@@ -33,6 +33,11 @@ const navItems: NavItem[] = [
     path: "/orders",
     icon: <ClipboardList size={17} />,
   },
+  {
+    label: "Payments",
+    path: "/payments",
+    icon: <CurrencyIcon size={17} />,
+  },
 
   {
     label: "Customers",

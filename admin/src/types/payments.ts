@@ -23,6 +23,18 @@ export interface Payment {
   createdAt: string;
 }
 
+export interface PaymentPagination {
+    pageNumber: number;
+    pageSize: number;
+    totalRecords: number;
+    totalPages: number;
+  }
+  
+  export interface PaginatedPayments {
+    items: Payment[];
+    meta: PaymentPagination;
+  }
+
 export interface PaymentFilters {
   PageNumber: number;
   PageSize: number;
@@ -38,6 +50,15 @@ export interface PaymentApiResponse<T> {
   message: string;
   data: T;
 }
+
+export type GetPaymentsResponse = PaymentApiResponse<{
+    pageNumber: number;
+    pageSize: number;
+    totalRecords: number;
+    totalPages: number;
+    items: Payment[];
+  }>;
+  
 
 export interface UploadReceiptRequest {
   orderId: number;
