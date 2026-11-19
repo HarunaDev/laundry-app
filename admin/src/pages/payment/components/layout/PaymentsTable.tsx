@@ -1,4 +1,5 @@
 
+import { Link } from "react-router-dom";
 import type { TableColumn } from "../../../../components/layout/DataTable";
 import DataTable from "../../../../components/layout/DataTable";
 import StatusBadge from "../../../../components/ui/StatusBadge";
@@ -40,7 +41,15 @@ const columns: TableColumn<Payment>[] = [
   {
     key: "orderId",
     header: "Order ID",
-    render: (payment) => `#${payment.laundryOrderId}`,
+    // render: (payment) => `#${payment.laundryOrderId}`,
+    render: (payment) => (
+        <Link
+          to={`/payments/${payment.laundryOrderId}`}
+          className="font-medium text-blue-600 hover:text-blue-700"
+        >
+          #{payment.laundryOrderId}
+        </Link>
+      ),
   },
   {
     key: "amount",

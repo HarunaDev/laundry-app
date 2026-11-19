@@ -79,7 +79,7 @@ const paymentApiSlice = generalApiSlice.injectEndpoints({
 
     confirmPayment: builder.mutation<PaymentApiResponse<Payment>, number>({
       query: (orderId) => ({
-        url: `/payment/orders/${orderId}/confirm`,
+        url: `/payments/orders/${orderId}/confirm`,
         method: "PUT",
       }),
       invalidatesTags: (_result, _error, orderId) => [
@@ -93,7 +93,7 @@ const paymentApiSlice = generalApiSlice.injectEndpoints({
       RejectPaymentRequest
     >({
       query: ({ orderId, reason }) => ({
-        url: `/payment/orders/${orderId}/reject`,
+        url: `/payments/orders/${orderId}/reject`,
         method: "PUT",
         body: { reason },
       }),

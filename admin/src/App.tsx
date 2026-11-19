@@ -18,6 +18,7 @@ import Admins from './pages/admin/Admins';
 import OrderDetails from './pages/orders/OrderDetails';
 import Accounts from './pages/account/Accounts';
 import Payments from './pages/payment/Payment';
+import PaymentDetails from './pages/payment/PaymentDetails';
 
 const router = createBrowserRouter([
   {
@@ -79,6 +80,10 @@ const router = createBrowserRouter([
       {
         path: "payments",
         element: <Payments />,
+      },
+      {
+        path: "payments/:orderId",
+        element: <PaymentDetails />,
       },
     ],
   },
