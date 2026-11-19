@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using LaundryApp.DTO.LaundryOrder;
+using LaundryApp.DTO.Responses;
 using LaundryApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -120,7 +121,7 @@ public class LaundryOrderServiceController : ControllerBase
     [HttpPost("filter")]
     [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(
-        typeof(IEnumerable<LaundryOrderDto>),
+        typeof(PagedResponse<LaundryOrderDto>),
         StatusCodes.Status200OK)]
     [ProducesResponseType(
         StatusCodes.Status401Unauthorized)]
