@@ -255,13 +255,71 @@ public class PaymentService
         // Remove the previous receipt after the new one
         // has been successfully saved.
 
-        var previousReceipt = payment.ReceiptPath;
+        // var previousReceipt = payment.ReceiptPath;
 
+        // payment.ReceiptPath = fileName;
+        // payment.ReceiptFileName = Path.GetFileName(file.FileName);
+        // payment.ReceiptContentType = file.ContentType;
+        // payment.ReceiptFileSize = file.Length;
+        // payment.ReceiptUploadedAt = DateTime.UtcNow;
+
+        // // A rejected payment can be resubmitted.
+        // payment.PaymentStatus = PaymentStatus.Pending;
+
+        // payment.RejectedBy = null;
+        // payment.RejectedAt = null;
+        // payment.RejectionReason = null;
+
+        // payment.UpdatedAt = DateTime.UtcNow;
+
+        // await _context.SaveChangesAsync();
+
+        // if (!string.IsNullOrWhiteSpace(previousReceipt))
+        // {
+        //     var previousPath = Path.Combine(
+        //         uploadDirectory,
+        //         Path.GetFileName(previousReceipt));
+
+        //     if (File.Exists(previousPath))
+        //     {
+        //         File.Delete(previousPath);
+        //     }
+        // }
+
+        // return MapToResponse(payment);
+
+        var uploadedAt = DateTime.UtcNow;
+
+        // Mark the previous submission as no longer current.
+        // Its metadata and physical file are retained.
+        foreach (var previousReceipt in payment.Receipts
+            .Where(r => r.IsCurrent))
+        {
+            previousReceipt.IsCurrent = false;
+        }
+
+        // Create a new receipt history record.
+        var receipt = new PaymentReceipt
+        {
+            PaymentId = payment.Id,
+            FilePath = fileName,
+            FileName = Path.GetFileName(file.FileName),
+            ContentType = file.ContentType,
+            FileSize = file.Length,
+            UploadedAt = uploadedAt,
+            IsCurrent = true,
+            IsRejected = false
+        };
+
+        _context.PaymentReceipts.Add(receipt);
+
+        // Keep the existing Payment receipt fields synchronized
+        // for compatibility with your current PaymentResponseDto.
         payment.ReceiptPath = fileName;
-        payment.ReceiptFileName = Path.GetFileName(file.FileName);
+        payment.ReceiptFileName = receipt.FileName;
         payment.ReceiptContentType = file.ContentType;
         payment.ReceiptFileSize = file.Length;
-        payment.ReceiptUploadedAt = DateTime.UtcNow;
+        payment.ReceiptUploadedAt = uploadedAt;
 
         // A rejected payment can be resubmitted.
         payment.PaymentStatus = PaymentStatus.Pending;
@@ -270,23 +328,25 @@ public class PaymentService
         payment.RejectedAt = null;
         payment.RejectionReason = null;
 
-        payment.UpdatedAt = DateTime.UtcNow;
+        payment.UpdatedAt = uploadedAt;
 
-        await _context.SaveChangesAsync();
-
-        if (!string.IsNullOrWhiteSpace(previousReceipt))
+        try
         {
-            var previousPath = Path.Combine(
-                uploadDirectory,
-                Path.GetFileName(previousReceipt));
-
-            if (File.Exists(previousPath))
+            await _context.SaveChangesAsync();
+        }
+        catch
+        {
+            // Avoid leaving an orphaned file if the database save fails.
+            if (File.Exists(filePath))
             {
-                File.Delete(previousPath);
+                File.Delete(filePath);
             }
+
+            throw;
         }
 
         return MapToResponse(payment);
+
     }
 
     // ==========================================================
@@ -383,15 +443,37 @@ public class PaymentService
                 "There is no payment receipt to review.");
         }
 
+        // payment.PaymentStatus = PaymentStatus.Rejected;
+
+        // payment.RejectedBy = adminId;
+        // payment.RejectedAt = DateTime.UtcNow;
+
+        // payment.RejectionReason = dto.Reason.Trim();
+
+        // payment.UpdatedAt = DateTime.UtcNow;
+
+
+        var rejectedAt = DateTime.UtcNow;
+
         payment.PaymentStatus = PaymentStatus.Rejected;
 
         payment.RejectedBy = adminId;
-        payment.RejectedAt = DateTime.UtcNow;
-
+        payment.RejectedAt = rejectedAt;
         payment.RejectionReason = dto.Reason.Trim();
 
-        payment.UpdatedAt = DateTime.UtcNow;
+        var currentReceipt = payment.Receipts
+            .FirstOrDefault(r => r.IsCurrent);
 
+        if (currentReceipt is not null)
+        {
+            currentReceipt.IsRejected = true;
+            currentReceipt.IsCurrent = false;
+            currentReceipt.RejectedBy = adminId;
+            currentReceipt.RejectedAt = rejectedAt;
+            currentReceipt.RejectionReason = dto.Reason.Trim();
+        }
+
+        payment.UpdatedAt = rejectedAt;
         await _context.SaveChangesAsync();
 
         return MapToResponse(payment);
@@ -444,6 +526,106 @@ public class PaymentService
         );
     }
 
+
+    public async Task<(Stream Stream, string ContentType, string FileName)>
+        GetReceiptAsync(int orderId, int receiptId)
+    {
+        var payment = await GetPaymentAsync(orderId);
+
+        var receipt = payment.Receipts
+            .FirstOrDefault(r => r.Id == receiptId);
+
+        if (receipt is null)
+        {
+            throw new NotFoundException(
+                "Payment receipt not found.");
+        }
+
+        if (receipt.FileDeletedAt.HasValue)
+        {
+            throw new NotFoundException(
+                "This receipt file has expired and is no longer available.");
+        }
+
+        var uploadDirectory = Path.Combine(
+            _environment.ContentRootPath,
+            "App_Data",
+            "PaymentReceipts");
+
+        var filePath = Path.Combine(
+            uploadDirectory,
+            Path.GetFileName(receipt.FilePath));
+
+        if (!File.Exists(filePath))
+        {
+            throw new NotFoundException(
+                "Payment receipt file not found.");
+        }
+
+        var stream = new FileStream(
+            filePath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            81920,
+            useAsync: true);
+
+        return (
+            stream,
+            receipt.ContentType,
+            receipt.FileName
+        );
+    }
+
+
+    // ==========================================================
+    // GET PAYMENT HISTORY
+    // ==========================================================
+
+
+    public async Task<IEnumerable<PaymentReceiptResponseDto>>
+        GetReceiptHistoryAsync(int orderId)
+    {
+        var payment = await GetPaymentAsync(orderId);
+
+        var uploadDirectory = Path.Combine(
+            _environment.ContentRootPath,
+            "App_Data",
+            "PaymentReceipts");
+
+        return payment.Receipts
+            .OrderByDescending(r => r.UploadedAt)
+            .ThenByDescending(r => r.Id)
+            .Select(receipt =>
+            {
+                var filePath = Path.Combine(
+                    uploadDirectory,
+                    Path.GetFileName(receipt.FilePath));
+
+                return new PaymentReceiptResponseDto
+                {
+                    Id = receipt.Id,
+                    PaymentId = receipt.PaymentId,
+                    FileName = receipt.FileName,
+                    ContentType = receipt.ContentType,
+                    FileSize = receipt.FileSize,
+                    UploadedAt = receipt.UploadedAt,
+                    IsCurrent = receipt.IsCurrent,
+                    IsRejected = receipt.IsRejected,
+                    RejectedBy = receipt.RejectedBy,
+                    RejectedAt = receipt.RejectedAt,
+                    RejectionReason = receipt.RejectionReason,
+                    FileDeletedAt = receipt.FileDeletedAt,
+                    IsFileAvailable =
+                        receipt.FileDeletedAt is null &&
+                        File.Exists(filePath)
+                };
+            })
+            .ToList();
+    }
+
+
+
     // ==========================================================
     // PRIVATE HELPERS
     // ==========================================================
@@ -481,6 +663,7 @@ public class PaymentService
     {
         var payment = await _context.Payments
             .Include(p => p.LaundryOrder)
+            .Include(p => p.Receipts)
             .FirstOrDefaultAsync(p =>
                 p.LaundryOrderId == orderId &&
                 !p.LaundryOrder.IsDeleted);

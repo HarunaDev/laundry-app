@@ -33,4 +33,7 @@ public class Payment
         = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }
+
+    public ICollection<PaymentReceipt> Receipts { get; set; }
+    = new List<PaymentReceipt>();
 }
