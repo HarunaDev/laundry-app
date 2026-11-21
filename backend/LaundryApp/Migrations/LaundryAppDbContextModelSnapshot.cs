@@ -429,6 +429,62 @@ namespace LaundryApp.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("LaundryApp.Models.PaymentReceipt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("FileDeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRejected")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("PaymentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RejectedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentId", "UploadedAt");
+
+                    b.HasIndex("IsRejected", "RejectedAt", "FileDeletedAt");
+
+                    b.ToTable("PaymentReceipts");
+                });
+
             modelBuilder.Entity("LaundryApp.Models.RefreshToken", b =>
                 {
                     b.Property<string>("Id")
@@ -587,6 +643,17 @@ namespace LaundryApp.Migrations
                     b.Navigation("LaundryOrder");
                 });
 
+            modelBuilder.Entity("LaundryApp.Models.PaymentReceipt", b =>
+                {
+                    b.HasOne("LaundryApp.Models.Payment", "Payment")
+                        .WithMany("Receipts")
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+                });
+
             modelBuilder.Entity("LaundryApp.Models.RefreshToken", b =>
                 {
                     b.HasOne("LaundryApp.Models.User", "User")
@@ -624,6 +691,11 @@ namespace LaundryApp.Migrations
             modelBuilder.Entity("LaundryApp.Models.LaundryService", b =>
                 {
                     b.Navigation("LaundryItems");
+                });
+
+            modelBuilder.Entity("LaundryApp.Models.Payment", b =>
+                {
+                    b.Navigation("Receipts");
                 });
 
             modelBuilder.Entity("LaundryApp.Models.User", b =>

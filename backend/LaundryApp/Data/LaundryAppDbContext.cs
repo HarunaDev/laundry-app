@@ -32,6 +32,8 @@ public class LaundryAppDbContext : DbContext
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<BankAccount> BankAccounts => Set<BankAccount>();
+    public DbSet<PaymentReceipt> PaymentReceipts =>
+    Set<PaymentReceipt>();
 
     // public DbSet<Category> Categories => Set<Category>();
 
@@ -141,5 +143,21 @@ public class LaundryAppDbContext : DbContext
         modelBuilder.Entity<BankAccount>()
             .HasIndex(b => b.AccountNumber)
             .IsUnique();
+
+        // PAYMENT -> PAYMENT RECEIPTS
+        // ONE-TO-MANY
+        // ===========================
+
+        modelBuilder.Entity<PaymentReceipt>()
+            .HasOne(r => r.Payment)
+            .WithMany(p => p.Receipts)
+            .HasForeignKey(r => r.PaymentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PaymentReceipt>()
+            .HasIndex(r => new { r.PaymentId, r.UploadedAt });
+
+        modelBuilder.Entity<PaymentReceipt>()
+            .HasIndex(r => new { r.IsRejected, r.RejectedAt, r.FileDeletedAt });
     }
 }
