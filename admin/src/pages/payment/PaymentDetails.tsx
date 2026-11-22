@@ -186,6 +186,7 @@ const PaymentDetails = () => {
 
       {/* Receipt */}
       <PaymentReceipt
+        orderId={orderId}
         payments={payments}
         onUpload={handleUpload}
         isUploading={uploadReceiptState.isLoading}
