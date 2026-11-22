@@ -5,6 +5,8 @@ import type {
   Payment,
   PaymentApiResponse,
   PaymentFilters,
+  PaymentReceiptHistoryResponse,
+  DownloadPaymentReceiptRequest,
   RejectPaymentRequest,
   UploadReceiptRequest,
 } from "../../types/payments";
@@ -54,6 +56,37 @@ const paymentApiSlice = generalApiSlice.injectEndpoints({
           id: orderId,
         },
       ],
+    }),
+
+    // Get receipt history for an order.
+    getPaymentReceiptHistory: builder.query<
+      PaymentReceiptHistoryResponse,
+      number
+    >({
+      query: (orderId) => ({
+        url: `/payments/orders/${orderId}/receipts`,
+        method: "GET",
+      }),
+      providesTags: (_result, _error, orderId) => [
+        {
+          type: "Payment",
+          id: orderId,
+        },
+      ],
+    }),
+
+    // Download the current receipt or a historical receipt.
+    downloadPaymentReceipt: builder.mutation<
+      Blob,
+      DownloadPaymentReceiptRequest
+    >({
+      query: ({ orderId, receiptId }) => ({
+        url: receiptId
+          ? `/payments/orders/${orderId}/receipts/${receiptId}`
+          : `/payments/orders/${orderId}/receipt`,
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
     }),
 
     uploadReceipt: builder.mutation<
@@ -111,6 +144,8 @@ export const {
   useGetPaymentsQuery,
   useGetPaymentByOrderIdQuery,
   useGetPaymentReceiptQuery,
+  useGetPaymentReceiptHistoryQuery,
+  useDownloadPaymentReceiptMutation,
   useUploadReceiptMutation,
   useConfirmPaymentMutation,
   useRejectPaymentMutation,

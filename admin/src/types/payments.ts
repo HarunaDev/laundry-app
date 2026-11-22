@@ -23,6 +23,22 @@ export interface Payment {
   createdAt: string;
 }
 
+export interface PaymentReceipt {
+    id: number;
+    paymentId: number;
+    fileName: string;
+    contentType: string;
+    fileSize: number;
+    uploadedAt: string;
+    isCurrent: boolean;
+    isRejected: boolean;
+    rejectedBy: string | null;
+    rejectedAt: string | null;
+    rejectionReason: string | null;
+    fileDeletedAt: string | null;
+    isFileAvailable: boolean;
+  }
+
 export interface PaymentPagination {
     pageNumber: number;
     pageSize: number;
@@ -68,4 +84,12 @@ export interface UploadReceiptRequest {
 export interface RejectPaymentRequest {
   orderId: number;
   reason: string;
+}
+
+export type PaymentReceiptHistoryResponse =
+  PaymentApiResponse<PaymentReceipt[]>;
+
+export interface DownloadPaymentReceiptRequest {
+  orderId: number;
+  receiptId?: number;
 }
