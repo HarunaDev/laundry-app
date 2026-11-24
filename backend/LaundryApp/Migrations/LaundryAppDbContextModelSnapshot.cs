@@ -229,9 +229,6 @@ namespace LaundryApp.Migrations
                     b.Property<int>("DeliveryMethodId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("DeliveryMethodId1")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("DeliveryPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
@@ -248,9 +245,6 @@ namespace LaundryApp.Migrations
                         .HasColumnType("numeric(18,2)");
 
                     b.Property<int?>("LaundryLocationId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("LaundryLocationId1")
                         .HasColumnType("integer");
 
                     b.Property<string>("PickupAddress")
@@ -270,11 +264,7 @@ namespace LaundryApp.Migrations
 
                     b.HasIndex("DeliveryMethodId");
 
-                    b.HasIndex("DeliveryMethodId1");
-
                     b.HasIndex("LaundryLocationId");
-
-                    b.HasIndex("LaundryLocationId1");
 
                     b.HasIndex("UserId");
 
@@ -330,9 +320,6 @@ namespace LaundryApp.Migrations
                     b.Property<int>("LaundryItemId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("LaundryItemId1")
-                        .HasColumnType("integer");
-
                     b.Property<string>("LaundryItemName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -358,8 +345,6 @@ namespace LaundryApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("LaundryItemId");
-
-                    b.HasIndex("LaundryItemId1");
 
                     b.HasIndex("LaundryOrderId");
 
@@ -578,23 +563,15 @@ namespace LaundryApp.Migrations
             modelBuilder.Entity("LaundryApp.Models.LaundryOrder", b =>
                 {
                     b.HasOne("LaundryApp.Models.DeliveryMethod", "DeliveryMethod")
-                        .WithMany()
+                        .WithMany("LaundryOrders")
                         .HasForeignKey("DeliveryMethodId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("LaundryApp.Models.DeliveryMethod", null)
-                        .WithMany("LaundryOrders")
-                        .HasForeignKey("DeliveryMethodId1");
-
                     b.HasOne("LaundryApp.Models.LaundryLocation", "LaundryLocation")
-                        .WithMany()
+                        .WithMany("LaundryOrders")
                         .HasForeignKey("LaundryLocationId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("LaundryApp.Models.LaundryLocation", null)
-                        .WithMany("LaundryOrders")
-                        .HasForeignKey("LaundryLocationId1");
 
                     b.HasOne("LaundryApp.Models.User", "User")
                         .WithMany("LaundryOrders")
@@ -612,14 +589,10 @@ namespace LaundryApp.Migrations
             modelBuilder.Entity("LaundryApp.Models.OrderItem", b =>
                 {
                     b.HasOne("LaundryApp.Models.LaundryItem", "LaundryItem")
-                        .WithMany()
+                        .WithMany("OrderItems")
                         .HasForeignKey("LaundryItemId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("LaundryApp.Models.LaundryItem", null)
-                        .WithMany("OrderItems")
-                        .HasForeignKey("LaundryItemId1");
 
                     b.HasOne("LaundryApp.Models.LaundryOrder", "LaundryOrder")
                         .WithMany("OrderItems")
