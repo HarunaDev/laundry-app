@@ -839,11 +839,11 @@ public class LaundryOrderService
 
             CustomerId = order.UserId,
 
-            CustomerName = order.User.UserName,
+            CustomerName = order.User?.UserName ?? "Unknown Customer",
 
             DeliveryMethodId = order.DeliveryMethodId,
 
-            DeliveryMethod = order.DeliveryMethod.Name,
+            DeliveryMethod = order.DeliveryMethod?.Name ?? "Unkown Delivery method",
 
             LaundryLocationId = order.LaundryLocationId,
 
@@ -853,15 +853,15 @@ public class LaundryOrderService
 
             DeliveryAddress = order.DeliveryAddress,
 
-            PaymentMethod = order.Payment.PaymentMethod,
+            PaymentMethod = order.Payment?.PaymentMethod ?? PaymentMethod.Cash,
 
-            PaymentStatus = order.Payment.PaymentStatus,
+            PaymentStatus = order.Payment?.PaymentStatus ?? PaymentStatus.Pending,
 
-            ReceiptFileName = order.Payment.ReceiptFileName,
+            ReceiptFileName = order.Payment?.ReceiptFileName,
 
-            ReceiptUploadedAt = order.Payment.ReceiptUploadedAt,
+            ReceiptUploadedAt = order.Payment?.ReceiptUploadedAt,
 
-            PaymentConfirmedAt = order.Payment.ConfirmedAt,
+            PaymentConfirmedAt = order.Payment?.ConfirmedAt,
 
             DeliveryPrice = order.DeliveryPrice,
 
@@ -874,7 +874,7 @@ public class LaundryOrderService
             CreatedAt = order.CreatedAt,
 
             Items =
-                order.OrderItems.Select(i =>
+                order.OrderItems?.Select(i =>
                     new OrderItemDto
                     {
                         LaundryItemId = i.LaundryItemId,
@@ -889,7 +889,7 @@ public class LaundryOrderService
 
                         TotalPrice = i.TotalPrice
                     })
-                    .ToList()
+                    .ToList() ?? Enumerable.Empty<OrderItemDto>()
         };
     }
 }

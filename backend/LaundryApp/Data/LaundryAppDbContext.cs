@@ -58,7 +58,7 @@ public class LaundryAppDbContext : DbContext
 
         modelBuilder.Entity<LaundryOrder>()
             .HasOne(o => o.DeliveryMethod)
-            .WithMany()
+            .WithMany(d => d.LaundryOrders)
             .HasForeignKey(o => o.DeliveryMethodId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -68,7 +68,7 @@ public class LaundryAppDbContext : DbContext
 
         modelBuilder.Entity<LaundryOrder>()
             .HasOne(o => o.LaundryLocation)
-            .WithMany()
+            .WithMany(l => l.LaundryOrders)
             .HasForeignKey(o => o.LaundryLocationId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -103,7 +103,7 @@ public class LaundryAppDbContext : DbContext
 
         modelBuilder.Entity<OrderItem>()
             .HasOne(i => i.LaundryItem)
-            .WithMany()
+            .WithMany(l => l.OrderItems)
             .HasForeignKey(i => i.LaundryItemId)
             .OnDelete(DeleteBehavior.Restrict);
 
