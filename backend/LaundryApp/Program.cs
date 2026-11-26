@@ -58,6 +58,15 @@ builder.Services.AddSingleton<
 builder.Services.AddHostedService<PaymentReceiptCleanupService>();
 builder.Services.AddSingleton<HtmlSanitizerService>();
 
+// Redis distributed cache
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
+});
+
+// Hybrid cache
+builder.Services.AddHybridCache();
+
 // add controllers
 builder.Services.AddControllers()
 .AddJsonOptions(options =>
