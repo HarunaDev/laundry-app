@@ -3,6 +3,8 @@ using LaundryApp.Data;
 using LaundryApp.DTO.DeliveryMethod;
 using LaundryApp.Exceptions;
 using LaundryApp.Models;
+using LaundryApp.Caching;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 
 namespace LaundryApp.Services;
@@ -10,11 +12,13 @@ namespace LaundryApp.Services;
 public class DeliveryMethodService
 {
     private readonly LaundryAppDbContext _context;
+    private readonly HybridCache _cache;
 
     public DeliveryMethodService(
-        LaundryAppDbContext context)
+        LaundryAppDbContext context, HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     // CREATE DELIVERY METHOD
@@ -43,6 +47,7 @@ public class DeliveryMethodService
         _context.DeliveryMethods.Add(deliveryMethod);
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.DeliveryMethods.Tag);
 
         return new DeliveryMethodResponseDto
         {
@@ -55,23 +60,32 @@ public class DeliveryMethodService
     }
 
     // GET ALL DELIVERY METHODS
-
     public async Task<IEnumerable<DeliveryMethodDto>> GetAllAsync()
     {
-        return await _context.DeliveryMethods
-            .Where(d =>
-                !d.IsDeleted &&
-                d.IsActive)
-            .OrderBy(d => d.Name)
-            .Select(d => new DeliveryMethodDto
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.DeliveryMethods.All,
+            async cancellationToken =>
             {
-                Id = d.Id,
-                Name = d.Name,
-                Description = d.Description,
-                Price = d.Price,
-                IsActive = d.IsActive
-            })
-            .ToListAsync();
+                return await _context.DeliveryMethods
+                    .Where(d =>
+                        !d.IsDeleted &&
+                        d.IsActive)
+                    .OrderBy(d => d.Name)
+                    .Select(d => new DeliveryMethodDto
+                    {
+                        Id = d.Id,
+                        Name = d.Name,
+                        Description = d.Description,
+                        Price = d.Price,
+                        IsActive = d.IsActive
+                    })
+                    .ToListAsync(cancellationToken);
+            },
+            new HybridCacheEntryOptions
+            {
+                Expiration = CacheKeys.DeliveryMethods.Expiration
+            },
+            tags: [CacheKeys.DeliveryMethods.Tag]);
     }
 
     // GET DELIVERY METHOD BY ID
@@ -138,6 +152,7 @@ public class DeliveryMethodService
         deliveryMethod.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.DeliveryMethods.Tag);
 
         return new DeliveryMethodResponseDto
         {
@@ -172,5 +187,6 @@ public class DeliveryMethodService
             ClaimTypes.NameIdentifier)?.Value;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.DeliveryMethods.Tag);
     }
 }
