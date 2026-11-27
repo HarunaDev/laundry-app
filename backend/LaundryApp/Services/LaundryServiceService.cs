@@ -2,6 +2,8 @@ using LaundryApp.Data;
 using LaundryApp.DTO.LaundryService;
 using LaundryApp.Exceptions;
 using LaundryApp.Models;
+using LaundryApp.Caching;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -10,9 +12,11 @@ namespace LaundryApp.Services;
 public class LaundryServiceService
 {
     private readonly LaundryAppDbContext _context;
-    public LaundryServiceService(LaundryAppDbContext context)
+    private readonly HybridCache _cache;
+    public LaundryServiceService(LaundryAppDbContext context, HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     // create service
@@ -40,6 +44,7 @@ public class LaundryServiceService
         _context.LaundryServices.Add(service);
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Services.Tag);
 
         return new LaundryServiceResponseDto
         {
@@ -51,21 +56,32 @@ public class LaundryServiceService
     }
 
     // get all service
+
     public async Task<IEnumerable<LaundryServiceDto>> GetAllAsync()
     {
-        return await _context.LaundryServices
-            .Where(s =>
-                !s.IsDeleted &&
-                s.IsActive)
-            // .OrderBy(s => s.DisplayOrder)
-            .Select(s => new LaundryServiceDto
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.Services.All,
+            async cancellationToken =>
             {
-                Id = s.Id,
-                Name = s.Name,
-                Description = s.Description,
-                IsActive = s.IsActive
-            })
-            .ToListAsync();
+                return await _context.LaundryServices
+                    .Where(s =>
+                        !s.IsDeleted &&
+                        s.IsActive)
+                    // .OrderBy(s => s.DisplayOrder)
+                    .Select(s => new LaundryServiceDto
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Description = s.Description,
+                        IsActive = s.IsActive
+                    })
+                    .ToListAsync(cancellationToken);
+            },
+            new HybridCacheEntryOptions
+            {
+                Expiration = CacheKeys.Services.Expiration
+            },
+            tags: [CacheKeys.Services.Tag]);
     }
 
     // Get by Id
@@ -127,6 +143,7 @@ public class LaundryServiceService
         service.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Services.Tag);
 
         return new LaundryServiceResponseDto
         {
@@ -159,5 +176,6 @@ public class LaundryServiceService
             System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Services.Tag);
     }
 }
