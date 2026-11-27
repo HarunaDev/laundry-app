@@ -2,6 +2,8 @@
 using LaundryApp.Data;
 using LaundryApp.DTO.BankAccount;
 using LaundryApp.Exceptions;
+using LaundryApp.Caching;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 
 namespace LaundryApp.Services;
@@ -9,12 +11,20 @@ namespace LaundryApp.Services;
 public class BankAccountService
 {
     private readonly LaundryAppDbContext _context;
+    private readonly HybridCache _cache;
 
-    public BankAccountService(LaundryAppDbContext context)
+    public BankAccountService(LaundryAppDbContext context, HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
+    // =========================================
+    // GET ALL BANK ACCOUNTS
+    // =========================================
+
+    // Customers receive active accounts only.
+    // Administrators can optionally request inactive accounts.
     // =========================================
     // GET ALL BANK ACCOUNTS
     // =========================================
@@ -24,21 +34,45 @@ public class BankAccountService
     public async Task<List<BankAccountResponseDto>> GetAllAsync(
         bool includeInactive = false)
     {
-        var query = _context.BankAccounts
-            .AsNoTracking()
-            .Where(account => !account.IsDeleted);
-
+        // Cache only the active accounts list.
         if (!includeInactive)
         {
-            query = query.Where(account => account.IsActive);
+            return await _cache.GetOrCreateAsync(
+                CacheKeys.BankAccounts.Active,
+                async cancellationToken =>
+                {
+                    var accounts = await _context.BankAccounts
+                        .AsNoTracking()
+                        .Where(account =>
+                            !account.IsDeleted &&
+                            account.IsActive)
+                        .OrderBy(account => account.BankName)
+                        .ToListAsync(cancellationToken);
+
+                    return accounts
+                        .Select(MapToResponse)
+                        .ToList();
+                },
+                new HybridCacheEntryOptions
+                {
+                    Expiration = CacheKeys.BankAccounts.Expiration
+                },
+                tags: [CacheKeys.BankAccounts.Tag]);
         }
 
-        var accounts = await query
+        // Admin requests that include inactive accounts
+        // bypass the cache.
+        var inactiveInclusiveAccounts = await _context.BankAccounts
+            .AsNoTracking()
+            .Where(account => !account.IsDeleted)
             .OrderBy(account => account.BankName)
             .ToListAsync();
 
-        return accounts.Select(MapToResponse).ToList();
+        return inactiveInclusiveAccounts
+            .Select(MapToResponse)
+            .ToList();
     }
+
 
     // =========================================
     // GET BANK ACCOUNT BY ID
@@ -91,6 +125,7 @@ public class BankAccountService
         _context.BankAccounts.Add(account);
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.BankAccounts.Tag);
 
         return MapToResponse(account);
     }
@@ -132,6 +167,7 @@ public class BankAccountService
         account.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.BankAccounts.Tag);
 
         return MapToResponse(account);
     }
@@ -157,6 +193,7 @@ public class BankAccountService
         account.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.BankAccounts.Tag);
     }
 
     // =========================================
