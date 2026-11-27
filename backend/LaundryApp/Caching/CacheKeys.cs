@@ -18,6 +18,7 @@ public static class CacheKeys
     {
         public const string All = $"{Prefix}:items:all";
         public const string Tag = $"{Prefix}:items";
+        public static string ByService(int serviceId) => $"{Prefix}:items:service:{serviceId}";
         public static readonly TimeSpan Expiration = TimeSpan.FromMinutes(10);
     }
 

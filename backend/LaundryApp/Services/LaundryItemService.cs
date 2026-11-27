@@ -2,6 +2,8 @@ using LaundryApp.Data;
 using LaundryApp.DTO.LaundryItem;
 using LaundryApp.Exceptions;
 using LaundryApp.Models;
+using LaundryApp.Caching;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -10,10 +12,12 @@ namespace LaundryApp.Services;
 public class LaundryItemService
 {
     private readonly LaundryAppDbContext _context;
+    private readonly HybridCache _cache;
 
-    public LaundryItemService(LaundryAppDbContext context)
+    public LaundryItemService(LaundryAppDbContext context, HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     // CREATE ITEM
@@ -56,6 +60,7 @@ public class LaundryItemService
         _context.LaundryItems.Add(item);
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Items.Tag);
 
         return new LaundryItemResponseDto
         {
@@ -70,19 +75,28 @@ public class LaundryItemService
     // GET ALL ITEMS
     public async Task<IEnumerable<LaundryItemDto>> GetAllAsync()
     {
-        return await _context.LaundryItems
-            .Where(i => !i.IsDeleted)
-            .Include(i => i.LaundryService)
-            .OrderBy(i => i.Name)
-            .Select(i => new LaundryItemDto
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.Items.All,
+            async cancellationToken =>
             {
-                Id = i.Id,
-                Name = i.Name,
-                Price = i.Price,
-                LaundryServiceId = i.LaundryServiceId,
-                LaundryServiceName = i.LaundryService.Name
-            })
-            .ToListAsync();
+                return await _context.LaundryItems
+                    .Where(i => !i.IsDeleted)
+                    .OrderBy(i => i.Name)
+                    .Select(i => new LaundryItemDto
+                    {
+                        Id = i.Id,
+                        Name = i.Name,
+                        Price = i.Price,
+                        LaundryServiceId = i.LaundryServiceId,
+                        LaundryServiceName = i.LaundryService.Name
+                    })
+                    .ToListAsync(cancellationToken);
+            },
+            new HybridCacheEntryOptions
+            {
+                Expiration = CacheKeys.Items.Expiration
+            },
+            tags: [CacheKeys.Items.Tag]);
     }
 
     // GET ITEMS BY SERVICE
@@ -179,6 +193,7 @@ public class LaundryItemService
         item.LaundryServiceId = dto.LaundryServiceId;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Items.Tag);
 
         return new LaundryItemResponseDto
         {
@@ -212,5 +227,6 @@ public class LaundryItemService
             ClaimTypes.NameIdentifier);
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Items.Tag);
     }
 }
