@@ -5,6 +5,8 @@ using LaundryApp.Exceptions;
 using LaundryApp.Extensions;
 using LaundryApp.DTO.Responses;
 using LaundryApp.Models;
+using LaundryApp.Caching;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 
 namespace LaundryApp.Services;
@@ -36,11 +38,14 @@ public class LaundryOrderService
         };
     }
     private readonly LaundryAppDbContext _context;
+    private readonly HybridCache _cache;
 
     public LaundryOrderService(
-        LaundryAppDbContext context)
+        LaundryAppDbContext context,
+        HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
 
@@ -298,6 +303,8 @@ public class LaundryOrderService
         _context.LaundryOrders.Add(order);
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(
+    CacheKeys.Dashboard.Tag);
 
 
         // ------------------------------------------------------
@@ -735,6 +742,8 @@ public class LaundryOrderService
 
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(
+    CacheKeys.Dashboard.Tag);
 
 
         return await GetOrderResponseAsync(
@@ -790,6 +799,8 @@ public class LaundryOrderService
 
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(
+    CacheKeys.Dashboard.Tag);
 
 
         return await GetOrderResponseAsync(
