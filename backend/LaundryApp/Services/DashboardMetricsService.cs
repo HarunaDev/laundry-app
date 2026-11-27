@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using LaundryApp.Data;
 using LaundryApp.DTO.Dashboard;
+using LaundryApp.Caching;
+using Microsoft.Extensions.Caching.Hybrid;
 using LaundryApp.Models;
 
 namespace LaundryApp.Services;
@@ -8,14 +10,31 @@ namespace LaundryApp.Services;
 public class DashboardMetricsService
 {
     private readonly LaundryAppDbContext _context;
+    private readonly HybridCache _cache;
 
-    public DashboardMetricsService(LaundryAppDbContext context)
+    public DashboardMetricsService(LaundryAppDbContext context, HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public async Task<DashboardMetricsDto> GetMetricsAsync(
         string period = "week")
+    {
+        var normalizedPeriod = period.Trim().ToLowerInvariant();
+
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.Dashboard.MetricsByPeriod(normalizedPeriod),
+        async _ => await BuildMetricsAsync(normalizedPeriod),
+        new HybridCacheEntryOptions
+        {
+            Expiration = CacheKeys.Dashboard.Expiration
+        },
+        tags: [CacheKeys.Dashboard.Tag]
+        );
+    }
+
+    private async Task<DashboardMetricsDto> BuildMetricsAsync(string period)
     {
         var now = DateTime.UtcNow;
 
