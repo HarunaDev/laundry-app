@@ -3,6 +3,8 @@ using LaundryApp.Data;
 using LaundryApp.DTO.LaundryLocation;
 using LaundryApp.Exceptions;
 using LaundryApp.Models;
+using LaundryApp.Caching;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 
 namespace LaundryApp.Services;
@@ -10,11 +12,13 @@ namespace LaundryApp.Services;
 public class LaundryLocationService
 {
     private readonly LaundryAppDbContext _context;
+    private readonly HybridCache _cache;
 
     public LaundryLocationService(
-        LaundryAppDbContext context)
+        LaundryAppDbContext context, HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     // CREATE LOCATION
@@ -46,6 +50,7 @@ public class LaundryLocationService
         _context.LaundryLocations.Add(location);
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Locations.Tag);
 
         return new LaundryLocationResponseDto
         {
@@ -62,26 +67,58 @@ public class LaundryLocationService
 
     // GET ALL LOCATIONS
 
+    // GET ALL LOCATIONS
     public async Task<IEnumerable<LaundryLocationDto>> GetAllAsync()
     {
-        return await _context.LaundryLocations
-            .Where(l =>
-                !l.IsDeleted &&
-                l.IsActive)
-            .OrderBy(l => l.Name)
-            .Select(l => new LaundryLocationDto
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.Locations.All,
+            async cancellationToken =>
             {
-                Id = l.Id,
-                Name = l.Name,
-                Address = l.Address,
-                City = l.City,
-                State = l.State,
-                Landmark = l.Landmark,
-                PhoneNumber = l.PhoneNumber,
-                IsActive = l.IsActive
-            })
-            .ToListAsync();
+                return await _context.LaundryLocations
+                    .Where(l =>
+                        !l.IsDeleted &&
+                        l.IsActive)
+                    .OrderBy(l => l.Name)
+                    .Select(l => new LaundryLocationDto
+                    {
+                        Id = l.Id,
+                        Name = l.Name,
+                        Address = l.Address,
+                        City = l.City,
+                        State = l.State,
+                        Landmark = l.Landmark,
+                        PhoneNumber = l.PhoneNumber,
+                        IsActive = l.IsActive
+                    })
+                    .ToListAsync(cancellationToken);
+            },
+            new HybridCacheEntryOptions
+            {
+                Expiration = CacheKeys.Locations.Expiration
+            },
+            tags: [CacheKeys.Locations.Tag]);
     }
+
+    // public async Task<IEnumerable<LaundryLocationDto>> GetAllAsync()
+    // {
+    //     return await _context.LaundryLocations
+    //         .Where(l =>
+    //             !l.IsDeleted &&
+    //             l.IsActive)
+    //         .OrderBy(l => l.Name)
+    //         .Select(l => new LaundryLocationDto
+    //         {
+    //             Id = l.Id,
+    //             Name = l.Name,
+    //             Address = l.Address,
+    //             City = l.City,
+    //             State = l.State,
+    //             Landmark = l.Landmark,
+    //             PhoneNumber = l.PhoneNumber,
+    //             IsActive = l.IsActive
+    //         })
+    //         .ToListAsync();
+    // }
 
     // GET LOCATION BY ID
 
@@ -153,6 +190,7 @@ public class LaundryLocationService
         location.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Locations.Tag);
 
         return new LaundryLocationResponseDto
         {
@@ -190,5 +228,6 @@ public class LaundryLocationService
             ClaimTypes.NameIdentifier)?.Value;
 
         await _context.SaveChangesAsync();
+        await _cache.RemoveByTagAsync(CacheKeys.Locations.Tag);
     }
 }
