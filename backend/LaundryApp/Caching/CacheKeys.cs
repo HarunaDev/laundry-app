@@ -57,7 +57,9 @@ public static class CacheKeys
     // Dashboard
     public static class Dashboard
     {
-        public const string Metrics = $"{Prefix}:dashboard:metrics";
+        public static string MetricsByPeriod(string period) =>
+            $"{Prefix}:dashboard:metrics:{period}";
+
         public const string Tag = $"{Prefix}:dashboard";
         public static readonly TimeSpan Expiration = TimeSpan.FromMinutes(2);
     }
